@@ -1,0 +1,51 @@
+services:  
+  # Database  
+  db:  
+    image: mysql:8.0  
+    volumes:  
+      - db_data:/var/lib/mysql  
+    restart: always  
+    environment:  
+      MYSQL_ROOT_PASSWORD: Anhtrung2@  
+      MYSQL_DATABASE: cms  
+      MYSQL_USER: benny  
+      MYSQL_PASSWORD: Anhtrung2@  
+    networks:  
+      - wpsite  
+
+  # phpmyadmin  
+  phpmyadmin:  
+    depends_on:  
+      - db  
+    image: phpmyadmin/phpmyadmin  
+    restart: always  
+    ports:  
+      - '8088:80'  
+    environment:  
+      PMA_HOST: db  
+    networks:  
+      - wpsite  
+
+  # WordPress  
+  web:  
+    depends_on:  
+      - db  
+    image: wordpress:php8.3-apache  
+    ports:  
+      - '80:80'  
+    restart: always  
+    volumes:  
+      - ./wordpress:/var/www/html 
+    environment:  
+      WORDPRESS_DB_HOST: db:3306  
+      WORDPRESS_DB_NAME: cms  
+      WORDPRESS_DB_USER: benny  
+      WORDPRESS_DB_PASSWORD: Anhtrung2@  
+    networks:  
+      - wpsite  
+
+networks:  
+  wpsite:  
+
+volumes:  
+  db_data:  
