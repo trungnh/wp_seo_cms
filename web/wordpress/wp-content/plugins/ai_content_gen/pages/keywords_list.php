@@ -43,6 +43,7 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
             break;  
         case 'crawl':  
         	crawlSearchTopByKeywordsIds($_POST['keywords_ids']);
+        	crawlContent();
 
             break;  
     }  
@@ -51,6 +52,7 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
 function crawlSearchTopByKeywordsIds($ids)
 {
 	global $wpdb;
+
 	$keywords_table_name = $wpdb->prefix . 'search_keywords';
 	$source_content_table_name = $wpdb->prefix . "crawled_source_content";
 
@@ -91,43 +93,55 @@ function crawlSearchTopByKeywordsIds($ids)
     }
 }
 
-function crawlSearchTopbyKeyword($keyword)
+function crawlContent()
 {
+	global $wpdb;
+	$source_content_table_name = $wpdb->prefix . "crawled_source_content";
+
+	$sqlStr = "SELECT id, link FROM {$source_content_table_name} WHERE content = %s";
+	$sql = $wpdb->prepare($sqlStr, '');
+    $rs = $wpdb->get_results($sql, ARRAY_A);
+
+    foreach ($rs as $item) {
+    	try {
+			// Crawl content từ link
+			$content = crawlContentByUrl($item['link']);
+			// update vào DB
+			$wpdb->update($source_content_table_name, ['content' => $content['content']], ['id' => $item['id']]);
+
+		} catch(Exception $e) {}
+    }
+
+}
+
+function crawlContentByUrl($url)
+{
+	$api_url = 'http://103.130.214.199:11235/crawl';
 	$acg_options = get_option('acg_settings_option_name');
-    $crawl_search_Endpoint = $acg_options['endpoint_crawl_search'] ?? 'https://google.serper.dev/search';
-    $crawl_search_Token = $acg_options['token_crawl_search'] ?? '';
-    $crawl_search_number = $acg_options['number_of_result_2'] ?? 5;
+	$crawl4ai_Endpoint = $acg_options['endpoint_crawl_content_api_crawl4ai_3'] ?? 'http://localhost:11235/crawl';
 
-    $params = [
-    			'q' => $keyword, 
-    			'num' => $crawl_search_number
-    		];
+	$body = array(
+        'url'           => $url,
+        'content_type'  => 'markdown',
+        'depth'         => 0,
+        'data'          => array(
+            'query'     => 'AI technology'
+        )
+    );
 
-    $header = [
-		    	'X-API-KEY:' . $crawl_search_Token,
-				'Content-Type: application/json'
-		    	];
+	$response = wp_remote_post($api_url, array(
+        'method'    => 'POST',
+        'body'      => json_encode($body),
+        'headers'   => array(
+            'Content-Type' => 'application/json',
+        ),
+        'timeout'   => 30, 
+    ));
 
-    $curl = curl_init();
+    $body = wp_remote_retrieve_body($response);
 
-	curl_setopt_array($curl, array(
-	  CURLOPT_URL => $crawl_search_Endpoint,
-	  CURLOPT_RETURNTRANSFER => true,
-	  CURLOPT_ENCODING => '',
-	  CURLOPT_MAXREDIRS => 10,
-	  CURLOPT_TIMEOUT => 0,
-	  CURLOPT_FOLLOWLOCATION => true,
-	  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-	  CURLOPT_CUSTOMREQUEST => 'POST',
-	  CURLOPT_POSTFIELDS =>json_encode($params), // '{"q":"apple inc","num":20}',
-	  CURLOPT_HTTPHEADER => $header,
-	));
+    return json_decode($body, true);
 
-	$response = curl_exec($curl);
-
-	curl_close($curl);
-
-	return json_decode($response);
 }
 
 ?>  
