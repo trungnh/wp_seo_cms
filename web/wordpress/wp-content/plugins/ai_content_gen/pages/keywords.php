@@ -15,7 +15,7 @@ if (isset($_POST['acg_keywords'])) {
 
 		$data = ['keywords' => $keywordTmp, 'search' => $searchTmp, 'status' => 0];
 		try {
-			$wpdb->insert($tableName, $data ); 	
+			$wpdb->insert($tableName, $data); 	
 		} catch(Exception $e) {}
 		
 	}

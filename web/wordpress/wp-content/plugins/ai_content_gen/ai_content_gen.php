@@ -40,7 +40,7 @@ function on_activate() {
 	            `link` VARCHAR(255) NOT NULL , 
 	            `title` TEXT NOT NULL , 
 	            `description` TEXT NOT NULL , 
-	            `content` TEXT NOT NULL , 
+	            `content` TEXT NOT NULL DEFAULT '', 
 	            `status` TINYINT NOT NULL DEFAULT 0 , 
 	            PRIMARY KEY (`id`), 
 	            UNIQUE `link` (`link`)
@@ -53,4 +53,4 @@ function on_activate() {
 
 
 require_once ACG_PLUGIN_DIR . '/pages/functions.php';
-//require_once ACG_PLUGIN_DIR . '/pages/keywords.php';
+require_once ACG_PLUGIN_DIR . '/pages/setting.php';

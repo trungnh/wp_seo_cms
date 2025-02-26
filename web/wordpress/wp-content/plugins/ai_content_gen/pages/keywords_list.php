@@ -42,10 +42,93 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
             // Thực hiện xóa bản ghi  
             break;  
         case 'crawl':  
-            // Thực hiện kích hoạt bản ghi  
+        	crawlSearchTopByKeywordsIds($_POST['keywords_ids']);
+
             break;  
     }  
 }  
+
+function crawlSearchTopByKeywordsIds($ids)
+{
+	global $wpdb;
+	$keywords_table_name = $wpdb->prefix . 'search_keywords';
+	$source_content_table_name = $wpdb->prefix . "crawled_source_content";
+
+	$keywords_ids = implode(',', $ids);
+	$parsePar = trim(str_repeat( '%d,', count($ids)), ',');
+    $keySqlStr = "SELECT id, keywords FROM {$keywords_table_name} WHERE id IN ({$parsePar})";
+    $keySql = $wpdb->prepare($keySqlStr, $ids);
+    $rs = $wpdb->get_results($keySql, ARRAY_A);
+
+    foreach ($rs as $item) {
+    	$response = crawlSearchTopbyKeyword($item['keywords']);
+    	if (property_exists($response, 'organic')) {
+			$organic = $response->organic;
+			foreach ($response->organic as $object_item) {
+				// Loại trừ domain
+				if (strpos($object_item->link, 'youtube.com') !== false) continue;
+				if (strpos($object_item->link, 'facebook.com') !== false) continue;
+				if (strpos($object_item->link, 'tiktok.com') !== false) continue;
+				if (strpos($object_item->link, 'fbsbx.com') !== false) continue;
+
+				$source_content_data = [
+					'keywords_id' 	=> $item['id'],
+					'link' 			=> $object_item->link,
+					'title' 		=> $object_item->title,
+					'description' 	=> $object_item->snippet,
+					'content'		=> '',
+					'status'		=> 0
+				];
+				try {
+					// insert kết quả vào DB
+					$wpdb->insert($source_content_table_name, $source_content_data); 
+					// update status keyword vừa crawl
+					$wpdb->update($keywords_table_name, ['status' => 1], ['id' => $item['id']]);
+
+				} catch(Exception $e) {}
+			}
+    	}
+    }
+}
+
+function crawlSearchTopbyKeyword($keyword)
+{
+	$acg_options = get_option('acg_settings_option_name');
+    $crawl_search_Endpoint = $acg_options['endpoint_crawl_search'] ?? 'https://google.serper.dev/search';
+    $crawl_search_Token = $acg_options['token_crawl_search'] ?? '';
+    $crawl_search_number = $acg_options['number_of_result_2'] ?? 5;
+
+    $params = [
+    			'q' => $keyword, 
+    			'num' => $crawl_search_number
+    		];
+
+    $header = [
+		    	'X-API-KEY:' . $crawl_search_Token,
+				'Content-Type: application/json'
+		    	];
+
+    $curl = curl_init();
+
+	curl_setopt_array($curl, array(
+	  CURLOPT_URL => $crawl_search_Endpoint,
+	  CURLOPT_RETURNTRANSFER => true,
+	  CURLOPT_ENCODING => '',
+	  CURLOPT_MAXREDIRS => 10,
+	  CURLOPT_TIMEOUT => 0,
+	  CURLOPT_FOLLOWLOCATION => true,
+	  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+	  CURLOPT_CUSTOMREQUEST => 'POST',
+	  CURLOPT_POSTFIELDS =>json_encode($params), // '{"q":"apple inc","num":20}',
+	  CURLOPT_HTTPHEADER => $header,
+	));
+
+	$response = curl_exec($curl);
+
+	curl_close($curl);
+
+	return json_decode($response);
+}
 
 ?>  
 <div class="wrap">
