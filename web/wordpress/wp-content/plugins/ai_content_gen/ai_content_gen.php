@@ -54,5 +54,5 @@ function on_activate() {
 }
 
 
-require_once ACG_PLUGIN_DIR . '/pages/setting.php';
-require_once ACG_PLUGIN_DIR . '/pages/keywords.php';
+require_once ACG_PLUGIN_DIR . '/pages/functions.php';
+//require_once ACG_PLUGIN_DIR . '/pages/keywords.php';
