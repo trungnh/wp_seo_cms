@@ -1,13 +1,11 @@
 <?php
 /*
  * Plugin Name: AI Content Gen
- * Plugin URI: https://zzz.com/
  * Description: Ai content generate
  * Author: Trung
- * Author URI: https://trungnh.com/
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Version: 1.0.0
+ * Version: 1.2.0
  * Requires PHP: 8.3
  */
 

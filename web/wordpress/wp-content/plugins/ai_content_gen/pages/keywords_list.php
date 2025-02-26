@@ -48,57 +48,60 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
 }  
 
 ?>  
-<script type="text/javascript">  
-        document.addEventListener('DOMContentLoaded', function() {  
-            const checkAll = document.getElementById('check-all');  
-            const rowCheckboxes = document.querySelectorAll('.row-checkbox');  
+<div class="wrap">
+	<h2>Keywords List</h2>
+		<script type="text/javascript">  
+		        document.addEventListener('DOMContentLoaded', function() {  
+		            const checkAll = document.getElementById('check-all');  
+		            const rowCheckboxes = document.querySelectorAll('.row-checkbox');  
 
-            checkAll.addEventListener('change', function() {  
-                rowCheckboxes.forEach((checkbox) => {  
-                    checkbox.checked = checkAll.checked;  
-                });  
-            });  
-        });  
-    </script>  
-<form method="get">  
-    <input type="hidden" name="page" value="acg-keywords-list" />  
-    <label for="status">Status:</label>  
-    <select name="status" id="status">  
-        <option value="">Tất cả</option>  
-        <option value="1" <?php selected($_GET['status'], 'active'); ?>>Crawled</option>  
-        <option value="0" <?php selected($_GET['status'], 'inactive'); ?>>Not Crawl</option>  
-    </select>  
-    <input type="submit" value="Filter" class="button" />  
-</form>  
-<form method="post" action="">  
-	<input type="hidden" name="page" value="my-admin-table" />  
-	<label for="status">Hành động:</label>
-    <select name="bulk_action">  
-        <option value="">Chọn hành động</option>  
-        <option value="crawl">Crawl</option>  
-        <option value="delete">Xoá</option>  
-    </select>  
-    <input type="submit" value="Thực hiện" class="button" />  
-	<table class="wp-list-table widefat fixed striped">  
-	    <thead>  
-	        <tr>  
-	        	<th scope="col"><input type="checkbox" id="check-all" /></th>  
-	            <th scope="col">Keyword</th>  
-	            <th scope="col">Search</th>  
-	            <th scope="col">Status</th>  
-	        </tr>  
-	    </thead>  
-	    <tbody>  
-	        <?php foreach ($data as $row) : ?>  
-	            <tr>  
-	            	<td><input type="checkbox" name="keywords_ids[]" value="<?php echo esc_attr($row['id']); ?>" class="row-checkbox"/></td>  
-	                <td><?php echo esc_html($row['keywords']); ?></td>  
-	                <td><?php echo esc_html($row['search']); ?></td>  
-	                <td><?php echo $row['status'] == 0 ? '<span style="color:red; font-weight:bold">&#10005;</span>' : '<span style="color:green; font-weight:bold">&#10003;</span>'; ?></td>  
-	            </tr>  
-	        <?php endforeach; ?>  
-	    </tbody>  
-	</table> 
-</form>
+		            checkAll.addEventListener('change', function() {  
+		                rowCheckboxes.forEach((checkbox) => {  
+		                    checkbox.checked = checkAll.checked;  
+		                });  
+		            });  
+		        });  
+		    </script>  
+		<form method="get">  
+		    <input type="hidden" name="page" value="acg-keywords-list" />  
+		    <label for="status">Status:</label>  
+		    <select name="status" id="status">  
+		        <option value="">Tất cả</option>  
+		        <option value="1" <?php selected($_GET['status'], 'active'); ?>>Crawled</option>  
+		        <option value="0" <?php selected($_GET['status'], 'inactive'); ?>>Not Crawl</option>  
+		    </select>  
+		    <input type="submit" value="Filter" class="button" />  
+		</form>  
+		<form method="post" action="">  
+			<input type="hidden" name="page" value="my-admin-table" />  
+			<label for="status">Hành động:</label>
+		    <select name="bulk_action">  
+		        <option value="">Chọn hành động</option>  
+		        <option value="crawl">Crawl</option>  
+		        <option value="delete">Xoá</option>  
+		    </select>  
+		    <input type="submit" value="Thực hiện" class="button" />  
+			<table class="wp-list-table widefat fixed striped">  
+			    <thead>  
+			        <tr>  
+			        	<th scope="col"><input type="checkbox" id="check-all" /></th>  
+			            <th scope="col">Keyword</th>  
+			            <th scope="col">Search</th>  
+			            <th scope="col">Status</th>  
+			        </tr>  
+			    </thead>  
+			    <tbody>  
+			        <?php foreach ($data as $row) : ?>  
+			            <tr>  
+			            	<td><input type="checkbox" name="keywords_ids[]" value="<?php echo esc_attr($row['id']); ?>" class="row-checkbox"/></td>  
+			                <td><?php echo esc_html($row['keywords']); ?></td>  
+			                <td><?php echo esc_html($row['search']); ?></td>  
+			                <td><?php echo $row['status'] == 0 ? '<span style="color:red; font-weight:bold">&#10005;</span>' : '<span style="color:green; font-weight:bold">&#10003;</span>'; ?></td>  
+			            </tr>  
+			        <?php endforeach; ?>  
+			    </tbody>  
+			</table> 
+		</form>
+</div>
 <?php
 echo '<div class="tablenav"><div class="pagination">' . paginate_links($pagination_args) . '</div></div>';  
