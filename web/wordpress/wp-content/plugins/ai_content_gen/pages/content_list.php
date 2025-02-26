@@ -2,7 +2,8 @@
 
 global $wpdb;
 
-$table_name = $wpdb->prefix . 'search_keywords';
+$table_name = $wpdb->prefix . 'crawled_source_content';
+$search_keywords_table_name = $wpdb->prefix . 'search_keywords';
 $records_per_page = 10; 
 $total_records = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name}");  
 $total_pages = ceil($total_records / $records_per_page);  
@@ -25,7 +26,7 @@ $pagination_args = [
 
 // Truy vấn dữ liệu với LIMIT và OFFSET  
 $status_filter = isset($_GET['status']) ? sanitize_text_field($_GET['status']) : '';  
-$sql = "SELECT * FROM " . $table_name;  
+$sql = "SELECT {$table_name}.*, {$search_keywords_table_name}.keywords FROM {$table_name} LEFT JOIN {$search_keywords_table_name} ON {$table_name}.keywords_id = {$search_keywords_table_name}.id";
 if ($status_filter) {  
     $sql .= $wpdb->prepare(" WHERE status = %s", $status_filter);  
 }  
@@ -41,14 +42,13 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
         case 'delete':  
             // Thực hiện xóa bản ghi  
             break;  
-        case 'crawl':  
-        	crawlSearchTopByKeywordsIds($_POST['keywords_ids']);
-        	crawlContent();
-        	wp_redirect( admin_url( '/admin.php?page=acg-content-list' ) );
-        	
+        case 'convert':  
+
+        	// Chatgpt convert
             break;  
     }  
 }  
+
 
 ?>  
 <div class="wrap">
@@ -66,12 +66,12 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
 		        });  
 		    </script>  
 		<form method="get">  
-		    <input type="hidden" name="page" value="acg-keywords-list" />  
+		    <input type="hidden" name="page" value="acg-content-list" />  
 		    <label for="status">Status:</label>  
 		    <select name="status" id="status">  
 		        <option value="">Tất cả</option>  
-		        <option value="1" <?php selected($_GET['status'], 'active'); ?>>Crawled</option>  
-		        <option value="0" <?php selected($_GET['status'], 'inactive'); ?>>Not Crawl</option>  
+		        <option value="1" <?php selected($_GET['status'], 'active'); ?>>Convertd</option>  
+		        <option value="0" <?php selected($_GET['status'], 'inactive'); ?>>Not Convert</option>  
 		    </select>  
 		    <input type="submit" value="Filter" class="button" />  
 		</form>  
@@ -80,25 +80,31 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
 			<label for="status">Hành động:</label>
 		    <select name="bulk_action">  
 		        <option value="">Chọn hành động</option>  
-		        <option value="crawl">Crawl</option>  
+		        <option value="convert">Convert</option>  
 		        <option value="delete">Xoá</option>  
 		    </select>  
 		    <input type="submit" value="Thực hiện" class="button" />  
 			<table class="wp-list-table widefat fixed striped">  
 			    <thead>  
 			        <tr>  
-			        	<td class="column-cb check-column"><input type="checkbox" id="check-all" /></th>  
+			        	<td class="column-cb check-column"><input type="checkbox" id="check-all" /></td>  
 			            <th scope="col">Keyword</th>  
-			            <th scope="col">Search</th>  
+			            <th scope="col">Title</th>  
+			            <th scope="col">Description</th>  
+			            <th scope="col">Link</th>  
+			            <th scope="col">Content</th>  
 			            <th scope="col">Status</th>  
 			        </tr>  
 			    </thead>  
 			    <tbody>  
 			        <?php foreach ($data as $row) : ?>  
 			            <tr>  
-			            	<th scope="row" class="column-cb check-column"><input type="checkbox" name="keywords_ids[]" value="<?php echo esc_attr($row['id']); ?>" class="row-checkbox"/></td>  
+			            	<th scope="row" class="column-cb check-column"><input type="checkbox" name="keywords_ids[]" value="<?php echo esc_attr($row['id']); ?>" class="row-checkbox"/></th>  
 			                <td><?php echo esc_html($row['keywords']); ?></td>  
-			                <td><?php echo esc_html($row['search']); ?></td>  
+			                <td><?php echo esc_html($row['title']); ?></td>  
+			                <td><?php echo esc_html($row['description']); ?></td>  
+			                <td><?php echo esc_html($row['title']); ?></td>  
+			                <td><?php echo _truncate_string(esc_html($row['content']), 100, '...'); ?></td>  
 			                <td><?php echo $row['status'] == 0 ? '<span style="color:red; font-weight:bold">&#10005;</span>' : '<span style="color:green; font-weight:bold">&#10003;</span>'; ?></td>  
 			            </tr>  
 			        <?php endforeach; ?>  
