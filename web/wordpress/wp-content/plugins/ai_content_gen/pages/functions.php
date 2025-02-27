@@ -75,11 +75,11 @@ function crawlSearchTopByKeywordsIds($ids)
 
 function crawlContent()
 {
-  global $wpdb;
-  $source_content_table_name = $wpdb->prefix . "crawled_source_content";
+    global $wpdb;
+    $source_content_table_name = $wpdb->prefix . "crawled_source_content";
 
-  $sqlStr = "SELECT id, link FROM {$source_content_table_name} WHERE content = %s";
-  $sql = $wpdb->prepare($sqlStr, '');
+    $sqlStr = "SELECT id, link FROM {$source_content_table_name} WHERE content = %s";
+    $sql = $wpdb->prepare($sqlStr, '');
     $rs = $wpdb->get_results($sql, ARRAY_A);
 
     foreach ($rs as $item) {

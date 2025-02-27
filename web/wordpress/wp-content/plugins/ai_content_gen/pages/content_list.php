@@ -43,12 +43,73 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
             // Thực hiện xóa bản ghi  
             break;  
         case 'convert':  
+        	convertContent();
 
         	// Chatgpt convert
             break;  
     }  
 }  
 
+function convertContent()
+{
+	global $wpdb;
+    $source_content_table_name = $wpdb->prefix . "crawled_source_content";
+
+    $sqlStr = "SELECT id, content FROM {$source_content_table_name} WHERE status = %d";
+    $sql = $wpdb->prepare($sqlStr, 0);
+    $rs = $wpdb->get_results($sql, ARRAY_A);
+
+    foreach ($rs as $item) {
+      try {
+      // Crawl content từ link
+      $content = crawlContentByUrl($item['link']);
+      // update vào DB
+      $wpdb->update($source_content_table_name, ['content' => $content['content']], ['id' => $item['id']]);
+
+    } catch(Exception $e) {}
+    }
+}
+
+function chatGPTConvert()
+{
+	$acg_options = get_option('acg_settings_option_name');
+	$chatgpt_token = $acg_options['chatgpt_token_4'] ?? '';
+
+	$api_key = "YOUR_OPENAI_API_KEY";
+
+	$url = "https://api.openai.com/v1/chat/completions";
+
+	$promt = "Bạn là một chuyên gia viết bài chuẩn SEO. Hãy viết lại bài viết dưới đây theo tiêu chuẩn tối ưu SEO, đảm bảo bài có cấu trúc rõ ràng (mở bài, thân bài, kết luận), có mục lục chi tiết, và sử dụng từ khóa chính một cách tự nhiên nhưng hiệu quả. Tuyệt đối không sao chép nguyên văn nội dung từ bất kỳ nguồn nào, hãy viết lại theo cách riêng để tránh vi phạm bản quyền";
+	$message = "Hãy viết lại bài viết sau đây theo chuẩn SEO:\n\n[NỘI DUNG BÀI VIẾT GỐC]\n\nTừ khóa chính cần tập trung: [TỪ KHÓA CHÍNH], [TỪ KHÓA PHỤ 1], [TỪ KHÓA PHỤ 2]...\n\nYêu cầu:\n1. Bài viết có tiêu đề hấp dẫn, chứa từ khóa chính.\n2. Viết mở bài hấp dẫn, ngắn gọn, giới thiệu chủ đề bài viết.\n3. Tạo một mục lục (Table of Contents) liệt kê các phần chính của bài viết.\n4. Viết lại thân bài mạch lạc, có các tiêu đề phụ (H2, H3) và lồng ghép từ khóa tự nhiên.\n5. Kết luận súc tích, có lời kêu gọi hành động (nếu phù hợp).\n6. Độ dài bài viết tối thiểu [SỐ TỪ] từ.\n7. Giữ văn phong tự nhiên, không lặp lại câu chữ một cách vô nghĩa.\n\nHãy bắt đầu viết!";
+
+	$data = [
+	    "model" => "gpt-4",
+	    "messages" => [
+	        ["role" => "system", "content" => $promt],
+	        ["role" => "user", "content" => ]
+	    ],
+	    "temperature" => 0.7,
+	    "max_tokens" => 200
+	];
+
+	$headers = [
+	    "Content-Type: application/json",
+	    "Authorization: Bearer " . $chatgpt_token
+	];
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+	$response = curl_exec($ch);
+	curl_close($ch);
+
+	$result = json_decode($response, true);
+	echo $result['choices'][0]['message']['content'];
+}
 
 ?>  
 <div class="wrap">
