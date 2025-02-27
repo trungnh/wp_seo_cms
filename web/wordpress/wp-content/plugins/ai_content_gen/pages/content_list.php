@@ -86,7 +86,7 @@ function chatGPTConvert()
 	    "model" => "gpt-4",
 	    "messages" => [
 	        ["role" => "system", "content" => $promt],
-	        ["role" => "user", "content" => ]
+	        ["role" => "user", "content" => $message]
 	    ],
 	    "temperature" => 0.7,
 	    "max_tokens" => 200
