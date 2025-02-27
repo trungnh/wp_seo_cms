@@ -73,6 +73,27 @@ function crawlSearchTopByKeywordsIds($ids)
     }
 }
 
+function crawlContentByIds($ids)
+{
+    global $wpdb;
+    $source_content_table_name = $wpdb->prefix . "crawled_source_content";
+
+    $parsePar = trim(str_repeat( '%d,', count($ids)), ',');
+    $sqlStr = "SELECT id, link FROM {$source_content_table_name} WHERE id IN ({$parsePar})";
+    $sql = $wpdb->prepare($sqlStr, $ids);
+    $rs = $wpdb->get_results($sql, ARRAY_A);
+
+    foreach ($rs as $item) {
+      try {
+        // Crawl content từ link
+        $content = crawlContentByUrl($item['link']);
+        // update vào DB
+        $wpdb->update($source_content_table_name, ['content' => $content['content']], ['id' => $item['id']]);
+
+      } catch(Exception $e) {}
+    }
+}
+
 function crawlContent()
 {
     global $wpdb;
@@ -84,14 +105,13 @@ function crawlContent()
 
     foreach ($rs as $item) {
       try {
-      // Crawl content từ link
-      $content = crawlContentByUrl($item['link']);
-      // update vào DB
-      $wpdb->update($source_content_table_name, ['content' => $content['content']], ['id' => $item['id']]);
+        // Crawl content từ link
+        $content = crawlContentByUrl($item['link']);
+        // update vào DB
+        $wpdb->update($source_content_table_name, ['content' => $content['content']], ['id' => $item['id']]);
 
-    } catch(Exception $e) {}
+      } catch(Exception $e) {}
     }
-
 }
 
 function crawlContentByUrl($url)

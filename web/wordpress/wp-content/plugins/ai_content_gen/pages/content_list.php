@@ -34,13 +34,18 @@ $sql .= " LIMIT %d OFFSET %d";
 $data = $wpdb->get_results($wpdb->prepare($sql, $records_per_page, $offset), ARRAY_A);
 
 // Xử lý bulk_action
-if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {  
+if (isset($_POST['bulk_action']) && !empty($_POST['source_ids'])) {  
     $action = sanitize_text_field($_POST['bulk_action']);  
-    $selected_ids = $_POST['keywords_ids'];  
+    $selected_ids = $_POST['source_ids'];  
 
     switch ($action) {  
         case 'delete':  
             // Thực hiện xóa bản ghi  
+            break;  
+        case 'crawl':  
+            // Thực hiện xóa bản ghi  
+        	crawlContentByIds($selected_ids);
+        	
             break;  
         case 'convert':  
         	convertContent();
@@ -141,6 +146,7 @@ function chatGPTConvert()
 			<label for="status">Hành động:</label>
 		    <select name="bulk_action">  
 		        <option value="">Chọn hành động</option>  
+		        <option value="crawl">Crawl Content</option>  
 		        <option value="convert">Convert</option>  
 		        <option value="delete">Xoá</option>  
 		    </select>  
@@ -160,7 +166,7 @@ function chatGPTConvert()
 			    <tbody>  
 			        <?php foreach ($data as $row) : ?>  
 			            <tr>  
-			            	<th scope="row" class="column-cb check-column"><input type="checkbox" name="keywords_ids[]" value="<?php echo esc_attr($row['id']); ?>" class="row-checkbox"/></th>  
+			            	<th scope="row" class="column-cb check-column"><input type="checkbox" name="source_ids[]" value="<?php echo esc_attr($row['id']); ?>" class="row-checkbox"/></th>  
 			                <td><?php echo esc_html($row['keywords']); ?></td>  
 			                <td><?php echo esc_html($row['title']); ?></td>  
 			                <td><?php echo esc_html($row['description']); ?></td>  
