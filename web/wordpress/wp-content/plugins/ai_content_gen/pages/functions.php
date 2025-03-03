@@ -90,7 +90,8 @@ function crawlContentByIds($ids)
         // update vào DB
         $wpdb->update($source_content_table_name, ['content' => $content['content']], ['id' => $item['id']]);
 
-      } catch(Exception $e) {}
+      } catch(Exception $e) {
+      }
     }
 }
 

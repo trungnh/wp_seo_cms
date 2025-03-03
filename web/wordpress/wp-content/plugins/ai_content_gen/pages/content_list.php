@@ -45,7 +45,7 @@ if (isset($_POST['bulk_action']) && !empty($_POST['source_ids'])) {
         case 'crawl':  
             // Thực hiện xóa bản ghi  
         	crawlContentByIds($selected_ids);
-        	
+
             break;  
         case 'convert':  
         	convertContent();
@@ -170,7 +170,7 @@ function chatGPTConvert()
 			                <td><?php echo esc_html($row['keywords']); ?></td>  
 			                <td><?php echo esc_html($row['title']); ?></td>  
 			                <td><?php echo esc_html($row['description']); ?></td>  
-			                <td><?php echo esc_html($row['title']); ?></td>  
+			                <td><?php echo esc_html($row['link']); ?></td>  
 			                <td><?php echo _truncate_string(esc_html($row['content']), 100, '...'); ?></td>  
 			                <td><?php echo $row['status'] == 0 ? '<span style="color:red; font-weight:bold">&#10005;</span>' : '<span style="color:green; font-weight:bold">&#10003;</span>'; ?></td>  
 			            </tr>  

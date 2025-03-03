@@ -40,7 +40,11 @@ function on_activate() {
 	            `link` VARCHAR(255) NOT NULL , 
 	            `title` TEXT NOT NULL , 
 	            `description` TEXT NOT NULL , 
-	            `content` TEXT NOT NULL DEFAULT '', 
+	            `chu_de` LONGTEXT NULL, 
+	            `thuoc_tinh_chinh` LONGTEXT NULL, 
+	            `keyword_chinh` LONGTEXT NULL, 
+	            `user_intent` LONGTEXT NULL, 
+	            `content` LONGTEXT NULL, 
 	            `status` TINYINT NOT NULL DEFAULT 0 , 
 	            PRIMARY KEY (`id`), 
 	            UNIQUE `link` (`link`)
