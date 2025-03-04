@@ -3,11 +3,11 @@ add_action( 'admin_menu', 'acg_register_menu_document', 9, 0);
 
 function acg_register_menu_document() {  
     add_menu_page(
-        'AI Content Generate',     // page title
-        'AI Content Generate',     // menu title
-        'manage_options',   // capability
-        'acg-keywords',     // menu slug
-        'acg_keywords_render', // callback function
+        'AI Content Generate',    // page title
+        'AI Content Generate',    // menu title
+        'manage_options',         // capability
+        'acg-keywords',           // menu slug
+        'acg_keywords_render',    // callback function
         'dashicons-rss'
     );
     add_submenu_page('acg-keywords', 'Keywords List', 'Keywords List', 'manage_options', 'acg-keywords-list', 'acg_keywords_list_render');  
@@ -27,6 +27,71 @@ function acg_keywords_list_render()
 function acg_content_list_render()
 {
   require_once ACG_PLUGIN_DIR . '/pages/content_list.php';
+}
+
+// Xử lý AJAX khi bấm "Tạo Dàn Bài"
+function process_gemini_bulk_action() {
+    if (!isset($_POST['keyword_ids']) || !is_array($_POST['keyword_ids'])) {
+        wp_send_json_error("Không có bài viết nào được chọn!");
+    }
+
+    $keyword_ids = array_map('intval', $_POST['keyword_ids']);
+    $process = new Crawled_Source_Content_Process();
+
+    foreach ($keyword_ids as $id) {
+        $process->push_to_queue($id);
+    }
+
+    $process->save()->dispatch();
+    
+    wp_send_json_success("Đã gửi các bài viết vào hàng đợi để xử lý!");
+}
+add_action('wp_ajax_generate_gemini_outline', 'process_gemini_bulk_action');
+
+function callGemini($content)
+{
+  $acg_options = get_option('acg_settings_option');
+
+  if (!isset($acg_options['gemini_token'])) {
+        log_message("API Key chưa được thiết lập!");
+        return false;
+  }
+
+  $api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $acg_options['gemini_token'];
+    
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $api_url);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+    'contents' => [
+        ['parts' => [['text' => $content]]]
+    ]
+  ]));
+
+  $response = curl_exec($ch);
+  $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  curl_close($ch);
+
+  //log_message("Phản hồi từ API Gemini: " . $response);
+
+  if ($http_code !== 200) {
+    log_message("Lỗi API: Mã lỗi HTTP " . $http_code);
+    return false;
+  }
+
+  $data = json_decode($response, true);
+  if (!isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+    log_message("API không trả về dữ liệu hợp lệ.");
+    return false;
+  }
+
+  $result_text = $data['candidates'][0]['content']['parts'][0]['text'];
+  //log_message("Nội dung phân tích: " . $result_text);
+
+  return trim($result_text);    
+
 }
 
 function crawlSearchTopByKeywordsIds($ids)
@@ -52,6 +117,7 @@ function crawlSearchTopByKeywordsIds($ids)
         if (strpos($object_item->link, 'facebook.com') !== false) continue;
         if (strpos($object_item->link, 'tiktok.com') !== false) continue;
         if (strpos($object_item->link, 'fbsbx.com') !== false) continue;
+        if (strpos($object_item->link, 'wikipedia.org') !== false) continue;
 
         $source_content_data = [
           'keywords_id'   => $item['id'],
@@ -117,9 +183,8 @@ function crawlContent()
 
 function crawlContentByUrl($url)
 {
-  $api_url = 'http://103.130.214.199:11235/crawl';
-  $acg_options = get_option('acg_settings_option_name');
-  $crawl4ai_Endpoint = $acg_options['endpoint_crawl_content_api_crawl4ai_3'] ?? 'http://localhost:11235/crawl';
+  $acg_options = get_option('acg_settings_option');
+  $crawl4ai_Endpoint = $acg_options['endpoint_crawl_content_api_crawl4ai'] ?? 'http://localhost:11235/crawl';
 
   $body = array(
         'url'           => $url,
@@ -130,7 +195,7 @@ function crawlContentByUrl($url)
         )
     );
 
-  $response = wp_remote_post($api_url, array(
+  $response = wp_remote_post($crawl4ai_Endpoint, array(
         'method'    => 'POST',
         'body'      => json_encode($body),
         'headers'   => array(
@@ -147,10 +212,10 @@ function crawlContentByUrl($url)
 
 function crawlSearchTopbyKeyword($keyword)
 {
-  $acg_options = get_option('acg_settings_option_name');
+  $acg_options = get_option('acg_settings_option');
   $crawl_search_Endpoint = $acg_options['endpoint_crawl_search'] ?? 'https://google.serper.dev/search';
   $crawl_search_Token = $acg_options['token_crawl_search'] ?? '';
-  $crawl_search_number = $acg_options['number_of_result_2'] ?? 10;
+  $crawl_search_number = $acg_options['number_of_result'] ?? 10;
 
   $params = [
         'q' => $keyword, 

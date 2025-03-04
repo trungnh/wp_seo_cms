@@ -77,8 +77,8 @@ function convertContent()
 
 function chatGPTConvert()
 {
-	$acg_options = get_option('acg_settings_option_name');
-	$chatgpt_token = $acg_options['chatgpt_token_4'] ?? '';
+	$acg_options = get_option('acg_settings_option');
+	$chatgpt_token = $acg_options['chatgpt_token'] ?? '';
 
 	$api_key = "YOUR_OPENAI_API_KEY";
 
@@ -129,7 +129,43 @@ function chatGPTConvert()
 		                    checkbox.checked = checkAll.checked;  
 		                });  
 		            });  
-		        });  
+		        }); 
+		         
+		        jQuery(document).ready(function($) {
+				    $('#do_action_dan_bai').on('click', function(e) {
+				        var action = $('#bulk-action-selector-top').val();
+				        if (action !== 'generate_gemini_outline') return;
+
+				        e.preventDefault();
+
+				        var keyword_ids = [];
+				        $('tbody th.check-column input:checked').each(function() {
+				            keyword_ids.push($(this).val());
+				        });
+
+				        if (keyword_ids.length === 0) {
+				            alert("Vui lòng chọn ít nhất một bài viết!");
+				            return;
+				        }
+
+				        $.ajax({
+				            url: gemini_ajax.ajax_url,
+				            type: 'POST',
+				            data: {
+				                action: 'generate_gemini_outline',
+				                post_ids: keyword_ids,
+				                nonce: gemini_ajax.nonce
+				            },
+				            beforeSend: function() {
+				                alert("Đang gửi bài viết vào hàng đợi...");
+				            },
+				            success: function(response) {
+				                alert(response.data);
+				                location.reload();
+				            }
+				        });
+				    });
+				});
 		    </script>  
 		<form method="get">  
 		    <input type="hidden" name="page" value="acg-content-list" />  
@@ -141,13 +177,18 @@ function chatGPTConvert()
 		    </select>  
 		    <input type="submit" value="Filter" class="button" />  
 		</form>  
+		<br>
+		<div>
+			<label for="status">Hành động chính:</label>
+			<button id="do_action_dan_bai" class="button">Tạo dàn bài</button>
+			<button id="do_action_viet_bai" class="button">Tạo bài viết</button>
+		</div>
+		<br>
 		<form method="post" action="">  
 			<input type="hidden" name="page" value="my-admin-table" />  
-			<label for="status">Hành động:</label>
+			<label for="status">Hành động phụ:</label>
 		    <select name="bulk_action">  
 		        <option value="">Chọn hành động</option>  
-		        <option value="crawl">Crawl Content</option>  
-		        <option value="convert">Convert</option>  
 		        <option value="delete">Xoá</option>  
 		    </select>  
 		    <input type="submit" value="Thực hiện" class="button" />  

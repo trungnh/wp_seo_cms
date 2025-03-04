@@ -44,6 +44,8 @@ function on_activate() {
 	            `thuoc_tinh_chinh` LONGTEXT NULL, 
 	            `keyword_chinh` LONGTEXT NULL, 
 	            `user_intent` LONGTEXT NULL, 
+	            `tom_tat` LONGTEXT NULL, 
+	            `dan_bai` LONGTEXT NULL, 
 	            `content` LONGTEXT NULL, 
 	            `status` TINYINT NOT NULL DEFAULT 0 , 
 	            PRIMARY KEY (`id`), 
@@ -55,6 +57,7 @@ function on_activate() {
     dbDelta( $create_table_query );
 }
 
+require_once ACG_PLUGIN_DIR . '/wp-background-processing.php';
 
 require_once ACG_PLUGIN_DIR . '/pages/functions.php';
 require_once ACG_PLUGIN_DIR . '/pages/setting.php';

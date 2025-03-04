@@ -19,7 +19,7 @@ class ACGSettings {
 
 	public function acg_settings_create_admin_page() {
 		$this->acg_settings_options = get_option( 'acg_settings_option' ); 
-		$this->acg_settings_promt_options = get_option( 'acg_settings_promt_option' ); ?>
+		$this->acg_settings_prompt_options = get_option( 'acg_settings_prompt_option' ); ?>
 
 		<div class="wrap">
 			<h2>ACG Settings</h2>
@@ -29,7 +29,7 @@ class ACGSettings {
 			<form method="post" action="options.php">
 				<?php
 					settings_fields( 'acg_settings_option_group' );
-					settings_fields( 'acg_settings_option_promt_group' );
+					settings_fields( 'acg_settings_option_prompt_group' );
 					do_settings_sections( 'acg-settings-admin' );
 					submit_button();
 				?>
@@ -45,8 +45,8 @@ class ACGSettings {
 		);
 
 		register_setting(
-			'acg_settings_option_promt_group', // option_group
-			'acg_settings_promt_option', // option_name
+			'acg_settings_option_prompt_group', // option_group
+			'acg_settings_prompt_option', // option_name
 			array( $this, 'acg_settings_sanitize' ) // sanitize_callback
 		);
 
@@ -90,6 +90,14 @@ class ACGSettings {
 		);
 
 		add_settings_field(
+			'gemini_token', // id
+			'Gemini token', // title
+			array( $this, 'gemini_token_callback' ), // callback
+			'acg-settings-admin', // page
+			'acg_settings_setting_section' // section
+		);
+
+		add_settings_field(
 			'chatgpt_token', // id
 			'ChatGPT token', // title
 			array( $this, 'chatgpt_token_callback' ), // callback
@@ -98,33 +106,49 @@ class ACGSettings {
 		);
 
 		add_settings_field(
-			'promt_chu_de', // id
-			'Promt lấy Chủ Đề', // title
-			array( $this, 'promt_chu_de_callback' ), // callback
+			'prompt_chu_de', // id
+			'Prompt  lấy Chủ Đề', // title
+			array( $this, 'prompt_chu_de_callback' ), // callback
 			'acg-settings-admin', // page
 			'acg_settings_setting_section' // section
 		);
 
 		add_settings_field(
-			'promt_thuoc_tinh_chinh', // id
-			'Promt lấy Thuộc Tính Chính', // title
-			array( $this, 'promt_thuoc_tinh_chinh_callback' ), // callback
+			'prompt_thuoc_tinh_chinh', // id
+			'Prompt  lấy Thuộc Tính Chính', // title
+			array( $this, 'prompt_thuoc_tinh_chinh_callback' ), // callback
 			'acg-settings-admin', // page
 			'acg_settings_setting_section' // section
 		);
 
 		add_settings_field(
-			'promt_keyword_chinh', // id
-			'Promt lấy Keyword Chính', // title
-			array( $this, 'promt_keyword_chinh_callback' ), // callback
+			'prompt_keyword_chinh', // id
+			'Prompt  lấy Keyword Chính', // title
+			array( $this, 'prompt_keyword_chinh_callback' ), // callback
 			'acg-settings-admin', // page
 			'acg_settings_setting_section' // section
 		);
 
 		add_settings_field(
-			'promt_user_intent', // id
-			'Promt lấy User Intent', // title
-			array( $this, 'promt_user_intent_callback' ), // callback
+			'prompt_user_intent', // id
+			'Prompt  lấy User Intent', // title
+			array( $this, 'prompt_user_intent_callback' ), // callback
+			'acg-settings-admin', // page
+			'acg_settings_setting_section' // section
+		);
+
+		add_settings_field(
+			'prompt_tom_tat', // id
+			'Prompt  lấy Tóm Tắt', // title
+			array( $this, 'prompt_tom_tat_callback' ), // callback
+			'acg-settings-admin', // page
+			'acg_settings_setting_section' // section
+		);
+
+		add_settings_field(
+			'prompt_dan_bai', // id
+			'Prompt  lấy Dàn Bài', // title
+			array( $this, 'prompt_dan_bai_callback' ), // callback
 			'acg-settings-admin', // page
 			'acg_settings_setting_section' // section
 		);
@@ -152,20 +176,28 @@ class ACGSettings {
 			$sanitary_values['chatgpt_token'] = sanitize_text_field( $input['chatgpt_token'] );
 		}
 
-		if ( isset( $input['promt_chu_de'] ) ) {
-			$sanitary_values['promt_chu_de'] = sanitize_text_field( $input['promt_chu_de'] );
+		if ( isset( $input['prompt_chu_de'] ) ) {
+			$sanitary_values['prompt_chu_de'] = sanitize_text_field( $input['prompt_chu_de'] );
 		}
 
-		if ( isset( $input['promt_thuoc_tinh_chinh'] ) ) {
-			$sanitary_values['promt_thuoc_tinh_chinh'] = sanitize_text_field( $input['promt_thuoc_tinh_chinh'] );
+		if ( isset( $input['prompt_thuoc_tinh_chinh'] ) ) {
+			$sanitary_values['prompt_thuoc_tinh_chinh'] = sanitize_text_field( $input['prompt_thuoc_tinh_chinh'] );
 		}
 
-		if ( isset( $input['promt_keyword_chinh'] ) ) {
-			$sanitary_values['promt_keyword_chinh'] = sanitize_text_field( $input['promt_keyword_chinh'] );
+		if ( isset( $input['prompt_keyword_chinh'] ) ) {
+			$sanitary_values['prompt_keyword_chinh'] = sanitize_text_field( $input['prompt_keyword_chinh'] );
 		}
 
-		if ( isset( $input['promt_user_intent'] ) ) {
-			$sanitary_values['promt_user_intent'] = sanitize_text_field( $input['promt_user_intent'] );
+		if ( isset( $input['prompt_user_intent'] ) ) {
+			$sanitary_values['prompt_user_intent'] = sanitize_text_field( $input['prompt_user_intent'] );
+		}
+
+		if ( isset( $input['prompt_tom_tat'] ) ) {
+			$sanitary_values['prompt_tom_tat'] = sanitize_text_field( $input['prompt_tom_tat'] );
+		}
+
+		if ( isset( $input['prompt_dan_bai'] ) ) {
+			$sanitary_values['prompt_dan_bai'] = sanitize_text_field( $input['prompt_dan_bai'] );
 		}
 
 		return $sanitary_values;
@@ -203,6 +235,13 @@ class ACGSettings {
 		);
 	}
 
+	public function gemini_token_callback() {
+		printf(
+			'<input class="regular-text" type="text" name="acg_settings_option[gemini_token]" id="gemini_token" value="%s">',
+			isset( $this->acg_settings_options['gemini_token'] ) ? esc_attr( $this->acg_settings_options['gemini_token']) : ''
+		);
+	}
+
 	public function chatgpt_token_callback() {
 		printf(
 			'<input class="regular-text" type="text" name="acg_settings_option[chatgpt_token]" id="chatgpt_token" value="%s">',
@@ -210,31 +249,45 @@ class ACGSettings {
 		);
 	}
 
-	public function promt_chu_de_callback() {
+	public function prompt_chu_de_callback() {
 		printf(
-			'<textarea class="regular-text" type="text" name="acg_settings_promt_option[promt_chu_de]" id="promt_chu_de">%s</textarea>',
-			isset( $this->acg_settings_promt_options['promt_chu_de'] ) ? esc_attr( $this->acg_settings_promt_options['promt_chu_de']) : ''
+			'<textarea class="regular-text" type="text" name="acg_settings_prompt_option[prompt_chu_de]" id="prompt_chu_de">%s</textarea>',
+			isset( $this->acg_settings_prompt_options['prompt_chu_de'] ) ? esc_attr( $this->acg_settings_prompt_options['prompt_chu_de']) : ''
 		);
 	}
 
-	public function promt_thuoc_tinh_chinh_callback() {
+	public function prompt_thuoc_tinh_chinh_callback() {
 		printf(
-			'<textarea class="regular-text" type="text" name="acg_settings_promt_option[promt_thuoc_tinh_chinh]" id="promt_thuoc_tinh_chinh">%s</textarea>',
-			isset( $this->acg_settings_promt_options['promt_thuoc_tinh_chinh'] ) ? esc_attr( $this->acg_settings_promt_options['promt_thuoc_tinh_chinh']) : ''
+			'<textarea class="regular-text" type="text" name="acg_settings_prompt_option[prompt_thuoc_tinh_chinh]" id="prompt_thuoc_tinh_chinh">%s</textarea>',
+			isset( $this->acg_settings_prompt_options['prompt_thuoc_tinh_chinh'] ) ? esc_attr( $this->acg_settings_prompt_options['prompt_thuoc_tinh_chinh']) : ''
 		);
 	}
 
-	public function promt_keyword_chinh_callback() {
+	public function prompt_keyword_chinh_callback() {
 		printf(
-			'<textarea class="regular-text" type="text" name="acg_settings_promt_option[promt_keyword_chinh]" id="promt_keyword_chinh">%s</textarea>',
-			isset( $this->acg_settings_promt_options['promt_keyword_chinh'] ) ? esc_attr( $this->acg_settings_promt_options['promt_keyword_chinh']) : ''
+			'<textarea class="regular-text" type="text" name="acg_settings_prompt_option[prompt_keyword_chinh]" id="prompt_keyword_chinh">%s</textarea>',
+			isset( $this->acg_settings_prompt_options['prompt_keyword_chinh'] ) ? esc_attr( $this->acg_settings_prompt_options['prompt_keyword_chinh']) : ''
 		);
 	}
 
-	public function promt_user_intent_callback() {
+	public function prompt_user_intent_callback() {
 		printf(
-			'<textarea class="regular-text" type="text" name="acg_settings_promt_option[promt_user_intent]" id="promt_user_intent">%s</textarea>',
-			isset( $this->acg_settings_promt_options['promt_user_intent'] ) ? esc_attr( $this->acg_settings_promt_options['promt_user_intent']) : ''
+			'<textarea class="regular-text" type="text" name="acg_settings_prompt_option[prompt_user_intent]" id="prompt_user_intent">%s</textarea>',
+			isset( $this->acg_settings_prompt_options['prompt_user_intent'] ) ? esc_attr( $this->acg_settings_prompt_options['prompt_user_intent']) : ''
+		);
+	}
+
+	public function prompt_tom_tat_callback() {
+		printf(
+			'<textarea class="regular-text" type="text" name="acg_settings_prompt_option[prompt_tom_tat]" id="prompt_tom_tat">%s</textarea>',
+			isset( $this->acg_settings_prompt_options['prompt_tom_tat'] ) ? esc_attr( $this->acg_settings_prompt_options['prompt_tom_tat']) : ''
+		);
+	}
+
+	public function prompt_dan_bai_callback() {
+		printf(
+			'<textarea class="regular-text" type="text" name="acg_settings_prompt_option[prompt_dan_bai]" id="prompt_dan_bai">%s</textarea>',
+			isset( $this->acg_settings_prompt_options['prompt_dan_bai'] ) ? esc_attr( $this->acg_settings_prompt_options['prompt_dan_bai']) : ''
 		);
 	}
 
