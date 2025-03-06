@@ -66,9 +66,33 @@ class ACGSettings {
 		);
 
 		add_settings_field(
+			'lang_crawl_search', // id
+			'Language search result API (serper.dev). EG: vi', // title
+			array( $this, 'lang_crawl_search_callback' ), // callback
+			'acg-settings-admin', // page
+			'acg_settings_setting_section' // section
+		);
+
+		add_settings_field(
+			'location_crawl_search', // id
+			'Location search result API (serper.dev). EG: vn', // title
+			array( $this, 'location_crawl_search_callback' ), // callback
+			'acg-settings-admin', // page
+			'acg_settings_setting_section' // section
+		);
+
+		add_settings_field(
 			'number_of_result', // id
 			'Number of result', // title
 			array( $this, 'number_of_result_callback' ), // callback
+			'acg-settings-admin', // page
+			'acg_settings_setting_section' // section
+		);
+
+		add_settings_field(
+			'exclude_crawl_search', // id
+			'Loại trừ domain khi crawl search (mỗi domain trên 1 dòng)', // title
+			array( $this, 'exclude_crawl_search_callback' ), // callback
 			'acg-settings-admin', // page
 			'acg_settings_setting_section' // section
 		);
@@ -90,9 +114,9 @@ class ACGSettings {
 		);
 
 		add_settings_field(
-			'chatgpt_token', // id
-			'ChatGPT token', // title
-			array( $this, 'chatgpt_token_callback' ), // callback
+			'deepseek_token', // id
+			'Deepseek token', // title
+			array( $this, 'deepseek_token_callback' ), // callback
 			'acg-settings-admin', // page
 			'acg_settings_setting_section' // section
 		);
@@ -144,6 +168,30 @@ class ACGSettings {
 			'acg-settings-admin', // page
 			'acg_settings_setting_section' // section
 		);
+
+		add_settings_field(
+			'deepseek_prompt_title', // id
+			'Deepseek Prompt Tiêu đề', // title
+			array( $this, 'deepseek_prompt_title_callback' ), // callback
+			'acg-settings-admin', // page
+			'acg_settings_setting_section' // section
+		);
+
+		add_settings_field(
+			'deepseek_prompt_description', // id
+			'Deepseek Prompt Description bài viết', // title
+			array( $this, 'deepseek_prompt_description_callback' ), // callback
+			'acg-settings-admin', // page
+			'acg_settings_setting_section' // section
+		);
+
+		add_settings_field(
+			'deepseek_prompt_viet_bai', // id
+			'Deepseek Prompt Viết bài', // title
+			array( $this, 'deepseek_prompt_viet_bai_callback' ), // callback
+			'acg-settings-admin', // page
+			'acg_settings_setting_section' // section
+		);
 	}
 
 	public function acg_settings_sanitize($input) {
@@ -156,8 +204,20 @@ class ACGSettings {
 			$sanitary_values['token_crawl_search'] = sanitize_text_field( $input['token_crawl_search'] );
 		}
 
+		if ( isset( $input['lang_crawl_search'] ) ) {
+			$sanitary_values['lang_crawl_search'] = sanitize_text_field( $input['lang_crawl_search'] );
+		}
+
+		if ( isset( $input['location_crawl_search'] ) ) {
+			$sanitary_values['location_crawl_search'] = sanitize_text_field( $input['location_crawl_search'] );
+		}
+
 		if ( isset( $input['number_of_result'] ) ) {
 			$sanitary_values['number_of_result'] = sanitize_text_field( $input['number_of_result'] );
+		}
+
+		if ( isset( $input['exclude_crawl_search'] ) ) {
+			$sanitary_values['exclude_crawl_search'] = wp_unslash( $input['exclude_crawl_search'] );
 		}
 
 		if ( isset( $input['endpoint_crawl_content_api_crawl4ai'] ) ) {
@@ -168,32 +228,44 @@ class ACGSettings {
 			$sanitary_values['gemini_token'] = sanitize_text_field( $input['gemini_token'] );
 		}
 
-		if ( isset( $input['chatgpt_token'] ) ) {
-			$sanitary_values['chatgpt_token'] = sanitize_text_field( $input['chatgpt_token'] );
+		if ( isset( $input['deepseek_token'] ) ) {
+			$sanitary_values['deepseek_token'] = sanitize_text_field( $input['deepseek_token'] );
 		}
 
 		if ( isset( $input['prompt_chu_de'] ) ) {
-			$sanitary_values['prompt_chu_de'] = sanitize_text_field( $input['prompt_chu_de'] );
+			$sanitary_values['prompt_chu_de'] = wp_unslash( $input['prompt_chu_de'] );
 		}
 
 		if ( isset( $input['prompt_thuoc_tinh_chinh'] ) ) {
-			$sanitary_values['prompt_thuoc_tinh_chinh'] = sanitize_text_field( $input['prompt_thuoc_tinh_chinh'] );
+			$sanitary_values['prompt_thuoc_tinh_chinh'] = wp_unslash( $input['prompt_thuoc_tinh_chinh'] );
 		}
 
 		if ( isset( $input['prompt_keyword_chinh'] ) ) {
-			$sanitary_values['prompt_keyword_chinh'] = sanitize_text_field( $input['prompt_keyword_chinh'] );
+			$sanitary_values['prompt_keyword_chinh'] = wp_unslash( $input['prompt_keyword_chinh'] );
 		}
 
 		if ( isset( $input['prompt_user_intent'] ) ) {
-			$sanitary_values['prompt_user_intent'] = sanitize_text_field( $input['prompt_user_intent'] );
+			$sanitary_values['prompt_user_intent'] = wp_unslash( $input['prompt_user_intent'] );
 		}
 
 		if ( isset( $input['prompt_tom_tat'] ) ) {
-			$sanitary_values['prompt_tom_tat'] = sanitize_text_field( $input['prompt_tom_tat'] );
+			$sanitary_values['prompt_tom_tat'] = wp_unslash( $input['prompt_tom_tat'] );
 		}
 
 		if ( isset( $input['prompt_dan_bai'] ) ) {
-			$sanitary_values['prompt_dan_bai'] = sanitize_text_field( $input['prompt_dan_bai'] );
+			$sanitary_values['prompt_dan_bai'] = wp_unslash( $input['prompt_dan_bai'] );
+		}
+
+		if ( isset( $input['deepseek_prompt_title'] ) ) {
+			$sanitary_values['deepseek_prompt_title'] = wp_unslash( $input['deepseek_prompt_title'] );
+		}
+
+		if ( isset( $input['deepseek_prompt_description'] ) ) {
+			$sanitary_values['deepseek_prompt_description'] = wp_unslash( $input['deepseek_prompt_description'] );
+		}
+
+		if ( isset( $input['deepseek_prompt_viet_bai'] ) ) {
+			$sanitary_values['deepseek_prompt_viet_bai'] = wp_unslash( $input['deepseek_prompt_viet_bai'] );
 		}
 
 		return $sanitary_values;
@@ -217,10 +289,31 @@ class ACGSettings {
 		);
 	}
 
+	public function lang_crawl_search_callback() {
+		printf(
+			'<input class="regular-text" type="text" name="acg_settings_option[lang_crawl_search]" id="lang_crawl_search" value="%s">',
+			isset( $this->acg_settings_options['lang_crawl_search'] ) ? esc_attr( $this->acg_settings_options['lang_crawl_search']) : ''
+		);
+	}
+
+	public function location_crawl_search_callback() {
+		printf(
+			'<input class="regular-text" type="text" name="acg_settings_option[location_crawl_search]" id="location_crawl_search" value="%s">',
+			isset( $this->acg_settings_options['location_crawl_search'] ) ? esc_attr( $this->acg_settings_options['location_crawl_search']) : ''
+		);
+	}
+
 	public function number_of_result_callback() {
 		printf(
 			'<input class="regular-text" type="text" name="acg_settings_option[number_of_result]" id="number_of_result" value="%s">',
 			isset( $this->acg_settings_options['number_of_result'] ) ? esc_attr( $this->acg_settings_options['number_of_result']) : ''
+		);
+	}
+
+	public function exclude_crawl_search_callback() {
+		printf(
+			'<textarea class="regular-text" type="text" name="acg_settings_option[exclude_crawl_search]" id="exclude_crawl_search">%s</textarea>',
+			isset( $this->acg_settings_options['exclude_crawl_search'] ) ? esc_textarea( $this->acg_settings_options['exclude_crawl_search']) : ''
 		);
 	}
 
@@ -238,52 +331,73 @@ class ACGSettings {
 		);
 	}
 
-	public function chatgpt_token_callback() {
+	public function deepseek_token_callback() {
 		printf(
-			'<input class="regular-text" type="text" name="acg_settings_option[chatgpt_token]" id="chatgpt_token" value="%s">',
-			isset( $this->acg_settings_options['chatgpt_token'] ) ? esc_attr( $this->acg_settings_options['chatgpt_token']) : ''
+			'<input class="regular-text" type="text" name="acg_settings_option[deepseek_token]" id="deepseek_token" value="%s">',
+			isset( $this->acg_settings_options['deepseek_token'] ) ? esc_attr( $this->acg_settings_options['deepseek_token']) : ''
 		);
 	}
 
 	public function prompt_chu_de_callback() {
 		printf(
 			'<textarea class="regular-text" type="text" name="acg_settings_option[prompt_chu_de]" id="prompt_chu_de">%s</textarea>',
-			isset( $this->acg_settings_options['prompt_chu_de'] ) ? esc_attr( $this->acg_settings_options['prompt_chu_de']) : ''
+			isset( $this->acg_settings_options['prompt_chu_de'] ) ? esc_textarea( $this->acg_settings_options['prompt_chu_de']) : ''
 		);
 	}
 
 	public function prompt_thuoc_tinh_chinh_callback() {
 		printf(
 			'<textarea class="regular-text" type="text" name="acg_settings_option[prompt_thuoc_tinh_chinh]" id="prompt_thuoc_tinh_chinh">%s</textarea>',
-			isset( $this->acg_settings_options['prompt_thuoc_tinh_chinh'] ) ? esc_attr( $this->acg_settings_options['prompt_thuoc_tinh_chinh']) : ''
+			isset( $this->acg_settings_options['prompt_thuoc_tinh_chinh'] ) ? esc_textarea( $this->acg_settings_options['prompt_thuoc_tinh_chinh']) : ''
 		);
 	}
 
 	public function prompt_keyword_chinh_callback() {
 		printf(
 			'<textarea class="regular-text" type="text" name="acg_settings_option[prompt_keyword_chinh]" id="prompt_keyword_chinh">%s</textarea>',
-			isset( $this->acg_settings_options['prompt_keyword_chinh'] ) ? esc_attr( $this->acg_settings_options['prompt_keyword_chinh']) : ''
+			isset( $this->acg_settings_options['prompt_keyword_chinh'] ) ? esc_textarea( $this->acg_settings_options['prompt_keyword_chinh']) : ''
 		);
 	}
 
 	public function prompt_user_intent_callback() {
 		printf(
 			'<textarea class="regular-text" type="text" name="acg_settings_option[prompt_user_intent]" id="prompt_user_intent">%s</textarea>',
-			isset( $this->acg_settings_options['prompt_user_intent'] ) ? esc_attr( $this->acg_settings_options['prompt_user_intent']) : ''
+			isset( $this->acg_settings_options['prompt_user_intent'] ) ? esc_textarea( $this->acg_settings_options['prompt_user_intent']) : ''
 		);
 	}
 
 	public function prompt_tom_tat_callback() {
 		printf(
 			'<textarea class="regular-text" type="text" name="acg_settings_option[prompt_tom_tat]" id="prompt_tom_tat">%s</textarea>',
-			isset( $this->acg_settings_options['prompt_tom_tat'] ) ? esc_attr( $this->acg_settings_options['prompt_tom_tat']) : ''
+			isset( $this->acg_settings_options['prompt_tom_tat'] ) ? esc_textarea( $this->acg_settings_options['prompt_tom_tat']) : ''
 		);
 	}
 
 	public function prompt_dan_bai_callback() {
 		printf(
 			'<textarea class="regular-text" type="text" name="acg_settings_option[prompt_dan_bai]" id="prompt_dan_bai">%s</textarea>',
-			isset( $this->acg_settings_options['prompt_dan_bai'] ) ? esc_attr( $this->acg_settings_options['prompt_dan_bai']) : ''
+			isset( $this->acg_settings_options['prompt_dan_bai'] ) ? esc_textarea( $this->acg_settings_options['prompt_dan_bai']) : ''
+		);
+	}
+
+	public function deepseek_prompt_title_callback() {
+		printf(
+			'<textarea class="regular-text" type="text" name="acg_settings_option[deepseek_prompt_title]" id="deepseek_prompt_title">%s</textarea>',
+			isset( $this->acg_settings_options['deepseek_prompt_title'] ) ? esc_textarea( $this->acg_settings_options['deepseek_prompt_title']) : ''
+		);
+	}
+
+	public function deepseek_prompt_description_callback() {
+		printf(
+			'<textarea class="regular-text" type="text" name="acg_settings_option[deepseek_prompt_description]" id="deepseek_prompt_description">%s</textarea>',
+			isset( $this->acg_settings_options['deepseek_prompt_description'] ) ? esc_textarea( $this->acg_settings_options['deepseek_prompt_description']) : ''
+		);
+	}
+
+	public function deepseek_prompt_viet_bai_callback() {
+		printf(
+			'<textarea class="regular-text" type="text" name="acg_settings_option[deepseek_prompt_viet_bai]" id="deepseek_prompt_viet_bai">%s</textarea>',
+			isset( $this->acg_settings_options['deepseek_prompt_viet_bai'] ) ? esc_textarea( $this->acg_settings_options['deepseek_prompt_viet_bai']) : ''
 		);
 	}
 

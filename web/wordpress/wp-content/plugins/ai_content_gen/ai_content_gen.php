@@ -27,6 +27,7 @@ function on_activate() {
     $create_table_query = "
             CREATE TABLE IF NOT EXISTS `{$wpdb->prefix}search_keywords` (
 	            `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT , 
+	            `category_id` BIGINT NOT NULL , 
 	            `keywords` VARCHAR(255) NOT NULL , 
 	            `search` INT NOT NULL , 
 	            `status` TINYINT NOT NULL DEFAULT 0 , 
@@ -45,8 +46,6 @@ function on_activate() {
 	            `keyword_chinh` LONGTEXT NULL, 
 	            `user_intent` LONGTEXT NULL, 
 	            `tom_tat` LONGTEXT NULL, 
-	            `dan_bai` LONGTEXT NULL, 
-	            `content` LONGTEXT NULL, 
 	            `status` TINYINT NOT NULL DEFAULT 0 , 
 	            PRIMARY KEY (`id`), 
 	            UNIQUE `link` (`link`)
@@ -56,8 +55,6 @@ function on_activate() {
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $create_table_query );
 }
-
-require_once ACG_PLUGIN_DIR . '/wp-background-processing.php';
 
 require_once ACG_PLUGIN_DIR . '/pages/functions.php';
 require_once ACG_PLUGIN_DIR . '/pages/setting.php';

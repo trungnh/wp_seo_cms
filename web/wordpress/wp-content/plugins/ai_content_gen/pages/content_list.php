@@ -42,13 +42,6 @@ if (isset($_POST['bulk_action']) && !empty($_POST['source_ids'])) {
         case 'delete':  
             // Thực hiện xóa bản ghi  
             break;  
-        case 'crawl':  
-            // Thực hiện xóa bản ghi  
-        	crawlContentByIds($selected_ids);
-
-            break;  
-        case 'convert':  
-        	convertContent();
 
         	// Chatgpt convert
             break;  
@@ -130,8 +123,8 @@ function chatGPTConvert()
 		                });  
 		            });  
 		        }); 
-		         
-		        jQuery(document).ready(function($) {
+
+		        /*jQuery(document).ready(function($) {
 				    $('#do_action_dan_bai').on('click', function(e) {
 				        var action = $('#bulk-action-selector-top').val();
 				        if (action !== 'generate_gemini_outline') return;
@@ -165,7 +158,7 @@ function chatGPTConvert()
 				            }
 				        });
 				    });
-				});
+				});*/
 		    </script>  
 		<form method="get">  
 		    <input type="hidden" name="page" value="acg-content-list" />  
@@ -177,13 +170,13 @@ function chatGPTConvert()
 		    </select>  
 		    <input type="submit" value="Filter" class="button" />  
 		</form>  
-		<br>
+		<!-- <br>
 		<div>
 			<label for="status">Hành động chính:</label>
 			<button id="do_action_dan_bai" class="button">Tạo dàn bài</button>
 			<button id="do_action_viet_bai" class="button">Tạo bài viết</button>
 		</div>
-		<br>
+		<br> -->
 		<form method="post" action="">  
 			<input type="hidden" name="page" value="my-admin-table" />  
 			<label for="status">Hành động phụ:</label>
@@ -200,7 +193,11 @@ function chatGPTConvert()
 			            <th scope="col">Title</th>  
 			            <th scope="col">Description</th>  
 			            <th scope="col">Link</th>  
-			            <th scope="col">Content</th>  
+			            <th scope="col">Chủ đề</th>  
+			            <th scope="col">Thuộc tính chính</th> 
+			            <th scope="col">Keyword chính</th> 
+			            <th scope="col">Usert intent</th> 
+			            <th scope="col">Tóm tắt</th> 
 			            <th scope="col">Status</th>  
 			        </tr>  
 			    </thead>  
@@ -212,7 +209,11 @@ function chatGPTConvert()
 			                <td><?php echo esc_html($row['title']); ?></td>  
 			                <td><?php echo esc_html($row['description']); ?></td>  
 			                <td><?php echo esc_html($row['link']); ?></td>  
-			                <td><?php echo _truncate_string(esc_html($row['content']), 100, '...'); ?></td>  
+			                <td><?php echo _truncate_string(esc_html($row['chu_de']), 100, '...'); ?></td>  
+			                <td><?php echo _truncate_string(esc_html($row['thuoc_tinh_chinh']), 100, '...'); ?></td>  
+			                <td><?php echo _truncate_string(esc_html($row['keyword_chinh']), 100, '...'); ?></td>  
+			                <td><?php echo _truncate_string(esc_html($row['user_intent']), 100, '...'); ?></td>  
+			                <td><?php echo _truncate_string(esc_html($row['tom_tat']), 100, '...'); ?></td>  
 			                <td><?php echo $row['status'] == 0 ? '<span style="color:red; font-weight:bold">&#10005;</span>' : '<span style="color:green; font-weight:bold">&#10003;</span>'; ?></td>  
 			            </tr>  
 			        <?php endforeach; ?>  

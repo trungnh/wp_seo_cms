@@ -42,10 +42,6 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
             // Thực hiện xóa bản ghi  
             break;  
         case 'crawl':  
-        	crawlSearchTopByKeywordsIds($_POST['keywords_ids']);
-        	crawlContent();
-        	wp_redirect( admin_url( '/admin.php?page=acg-content-list' ) );
-        	
             break;  
     }  
 }  
@@ -53,6 +49,15 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
 ?>  
 <div class="wrap">
 	<h2>Keywords List</h2>
+	<?php if (checkProcessKeywordsFlag()):?>
+		<div id="setting-error-tgmpa" class="notice notice-success settings-error is-dismissible"> 
+			<p>
+				<strong>
+					<span style="display: block; margin: 0.5em 0.5em 0 0; clear: both;">Có tiến trình crawler đang chạy</span>
+				</strong>
+			</p>
+		</div>
+	<?php endif;?>
 		<script type="text/javascript">  
 		        document.addEventListener('DOMContentLoaded', function() {  
 		            const checkAll = document.getElementById('check-all');  
@@ -80,7 +85,7 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
 			<label for="status">Hành động:</label>
 		    <select name="bulk_action">  
 		        <option value="">Chọn hành động</option>  
-		        <option value="crawl">Crawl</option>  
+		        <!-- <option value="crawl">Crawl</option>   -->
 		        <option value="delete">Xoá</option>  
 		    </select>  
 		    <input type="submit" value="Thực hiện" class="button" />  
