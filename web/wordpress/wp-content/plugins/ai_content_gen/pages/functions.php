@@ -29,6 +29,34 @@ function acg_content_list_render()
   require_once ACG_PLUGIN_DIR . '/pages/content_list.php';
 }
 
+function lockProcessKeywords()
+{
+  $file_path = WP_CONTENT_DIR . '/process_keywords.lock';
+  $file_content = "processing";
+
+  file_put_contents($file_path, $file_content);
+}
+
+function checkLockProcessKeywords()
+{
+  $file_path = WP_CONTENT_DIR . '/process_keywords.lock';
+
+  if (file_exists($file_path)) {
+      return true;
+  }
+
+  return false;
+}
+
+function unlockProcessKeywords()
+{
+  $file_path = WP_CONTENT_DIR . '/process_keywords.lock';
+  if (file_exists($file_path)) {
+      unlink($file_path);
+  }
+}
+
+
 function createProcessKeywordsFlag()
 {
   $file_path = WP_CONTENT_DIR . '/process_keywords.flag';

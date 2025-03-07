@@ -1,6 +1,12 @@
 <?php
 require './wp-load.php'; // Đường dẫn đến wp-load.php
 
+if (checkLockProcessKeywords()) {
+	exit;
+}
+
+lockProcessKeywords();
+
 if (checkProcessKeywordsFlag()) {
 	global $wpdb;
 
@@ -17,3 +23,5 @@ if (checkProcessKeywordsFlag()) {
 	}
 	deleteProcessKeywordsFlag();
 }
+
+unlockProcessKeywords();
