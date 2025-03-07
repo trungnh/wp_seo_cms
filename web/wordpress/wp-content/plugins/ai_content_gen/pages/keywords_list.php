@@ -46,6 +46,10 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
     }  
 }  
 
+if (isset($_POST['process'])) {
+	createProcessKeywordsFlag();
+}
+
 ?>  
 <div class="wrap">
 	<h2>Keywords List</h2>
@@ -70,6 +74,11 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
 		            });  
 		        });  
 		    </script>  
+		<form method="post" action="">
+			<label for="procees">Crawler:</label>
+			<input type="submit" name="process" value="Xử lý crawl tất cả keywords" class="button" />  
+		</form>
+		<br>
 		<form method="get">  
 		    <input type="hidden" name="page" value="acg-keywords-list" />  
 		    <label for="status">Status:</label>  
@@ -82,7 +91,7 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
 		</form>  
 		<form method="post" action="">  
 			<input type="hidden" name="page" value="my-admin-table" />  
-			<label for="status">Hành động:</label>
+			<label for="bulk_action">Hành động:</label>
 		    <select name="bulk_action">  
 		        <option value="">Chọn hành động</option>  
 		        <!-- <option value="crawl">Crawl</option>   -->

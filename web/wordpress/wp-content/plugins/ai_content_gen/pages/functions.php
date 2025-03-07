@@ -163,35 +163,35 @@ function proceedKeyword($keyword_data)
           $prompt_chu_de = str_replace("{{content}}", $content['content'], $prompt_chu_de);
           $chu_de = callGemini($prompt_chu_de);
           $source_content_data ['chu_de'] = $chu_de;
-          $chu_de_text .= $chu_de;
+          $chu_de_text .= trim($chu_de);
 
           print_to_screen("Lay thuoc tinh chinh");
           $prompt_thuoc_tinh_chinh = str_replace("{{keyword}}", $keyword_data['keywords'], $acg_prompt_options['prompt_thuoc_tinh_chinh']);
           $prompt_thuoc_tinh_chinh = str_replace("{{content}}", $content['content'], $prompt_thuoc_tinh_chinh);
           $thuoc_tinh_chinh = callGemini($prompt_thuoc_tinh_chinh);
           $source_content_data ['thuoc_tinh_chinh'] = $thuoc_tinh_chinh;
-          $thuoc_tinh_chinh_text .= $thuoc_tinh_chinh;
+          $thuoc_tinh_chinh_text .= trim($thuoc_tinh_chinh);
 
           print_to_screen("Lay keyword chinh");
           $prompt_keyword_chinh = str_replace("{{keyword}}", $keyword_data['keywords'], $acg_prompt_options['prompt_keyword_chinh']);
           $prompt_keyword_chinh = str_replace("{{content}}", $content['content'], $prompt_keyword_chinh);
           $keyword_chinh = callGemini($prompt_keyword_chinh);
           $source_content_data ['keyword_chinh'] = $keyword_chinh;
-          $keyword_chinh_text .= $keyword_chinh;
+          $keyword_chinh_text .= trim($keyword_chinh);
 
           print_to_screen("Lay user intent");
           $prompt_user_intent = str_replace("{{keyword}}", $keyword_data['keywords'], $acg_prompt_options['prompt_user_intent']);
           $prompt_user_intent = str_replace("{{content}}", $content['content'], $prompt_user_intent);
           $user_intent = callGemini($prompt_user_intent);
           $source_content_data ['user_intent'] = $user_intent;
-          $user_intent_text .= $user_intent;
+          $user_intent_text .= trim($user_intent);
 
           print_to_screen("Lay tom tat");
           $prompt_tom_tat = str_replace("{{keyword}}", $keyword_data['keywords'], $acg_prompt_options['prompt_tom_tat']);
           $prompt_tom_tat = str_replace("{{content}}", $content['content'], $prompt_tom_tat);
           $tom_tat = callGemini($prompt_tom_tat);
           $source_content_data ['tom_tat'] = $tom_tat;
-          $noi_dung_rut_gon .= $tom_tat;
+          $noi_dung_rut_gon .= trim($tom_tat);
 
           try {
             $crawled_content_id = $wpdb->insert($source_content_table_name, $source_content_data); 
