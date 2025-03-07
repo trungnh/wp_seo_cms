@@ -125,8 +125,8 @@ function crawlSearchTopByKeywordsIds($ids)
 
 function proceedKeyword($keyword_data)
 {
-  global $wpdb;
-  $source_content_table_name = $wpdb->prefix . "crawled_source_content";
+  // global $wpdb;
+  // $source_content_table_name = $wpdb->prefix . "crawled_source_content";
 
   print_to_screen("Bat dau xu ly keyword: " . $keyword_data['keywords']);
   $response = crawlSearchTopbyKeyword($keyword_data['keywords']);
@@ -222,11 +222,11 @@ function proceedKeyword($keyword_data)
           $source_content_data ['tom_tat'] = $tom_tat;
           $noi_dung_rut_gon .= trim($tom_tat);
 
-          try {
-            $crawled_content_id = $wpdb->insert($source_content_table_name, $source_content_data); 
-          } catch (Exception $e) {
-            acg_log("Lỗi save DB: " . $source_content_table_name . ": " . curl_error($ch));
-          }
+          // try {
+          //   $crawled_content_id = $wpdb->insert($source_content_table_name, $source_content_data); 
+          // } catch (Exception $e) {
+          //   acg_log("Lỗi save DB: " . $source_content_table_name . ": " . curl_error($ch));
+          // }
         }
       }
     }
@@ -247,7 +247,7 @@ function generateArticle($keyword_data, $title, $dan_bai, $noi_dung_rut_gon)
 {
   global $wpdb;
   $keywords_table_name = $wpdb->prefix . 'search_keywords';
-  $source_content_table_name = $wpdb->prefix . "crawled_source_content";
+  // $source_content_table_name = $wpdb->prefix . "crawled_source_content";
 
   // Tạo bài viết
   print_to_screen("Viet bai");
@@ -279,9 +279,9 @@ function generateArticle($keyword_data, $title, $dan_bai, $noi_dung_rut_gon)
       'post_author'  => $keyword_data['user_id'],
       'post_category' => [$keyword_data['category_id']] // ID danh mục
   ]);
-  if ($post_id) {
-    $wpdb->update($source_content_table_name, ['status' => 1], ['keywords_id' => $keyword_data['id']]);
-  }
+  // if ($post_id) {
+  //   $wpdb->update($source_content_table_name, ['status' => 1], ['keywords_id' => $keyword_data['id']]);
+  // }
 }
 
 function callDeepseek($prompt) 
