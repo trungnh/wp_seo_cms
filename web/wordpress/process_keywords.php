@@ -7,7 +7,7 @@ if (checkProcessKeywordsFlag()) {
 	$keywords_table_name = $wpdb->prefix . 'search_keywords';
 	$source_content_table_name = $wpdb->prefix . "crawled_source_content";
 
-	$keySqlStr = "SELECT id, category_id, keywords FROM {$keywords_table_name} WHERE status = %d";
+	$keySqlStr = "SELECT id, category_id, user_id, keywords FROM {$keywords_table_name} WHERE status = %d";
 	$keySql = $wpdb->prepare($keySqlStr, 0);
 	$rs = $wpdb->get_results($keySql, ARRAY_A);
 

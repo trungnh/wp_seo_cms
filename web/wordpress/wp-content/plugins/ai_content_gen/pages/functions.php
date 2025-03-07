@@ -84,7 +84,7 @@ function crawlSearchTopByKeywordsIds($ids)
 
   $keywords_ids = implode(',', $ids);
   $parsePar = trim(str_repeat( '%d,', count($ids)), ',');
-    $keySqlStr = "SELECT id, category_id, keywords FROM {$keywords_table_name} WHERE id IN ({$parsePar})";
+    $keySqlStr = "SELECT id, category_id, user_id, keywords FROM {$keywords_table_name} WHERE id IN ({$parsePar})";
     $keySql = $wpdb->prepare($keySqlStr, $ids);
     $rs = $wpdb->get_results($keySql, ARRAY_A);
 
@@ -245,7 +245,7 @@ function generateArticle($keyword_data, $title, $dan_bai, $noi_dung_rut_gon)
       'post_content' => $article_content,
       'post_excerpt' => $article_excerpt,
       'post_status'  => 'publish',
-      'post_author'  => 1,
+      'post_author'  => $keyword_data['user_id'],
       'post_category' => [$keyword_data['category_id']] // ID danh mục
   ]);
   if ($post_id) {
