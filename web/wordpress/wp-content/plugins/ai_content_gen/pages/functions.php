@@ -141,6 +141,7 @@ function proceedKeyword($keyword_data)
     $description = '';
     $acg_prompt_options = get_option('acg_settings_option');
     $exclude_domains = explode(PHP_EOL, $acg_prompt_options['exclude_crawl_search']);
+    $trim_exclude_domains = array_map('trim', $exclude_domains);
 
     $organic = $response->organic;
     foreach ($response->organic as $object_item) {
@@ -150,7 +151,7 @@ function proceedKeyword($keyword_data)
         // Loại bỏ "www." nếu có
         $host = preg_replace('/^www\./', '', $host);
         $host = preg_replace('/^m\./', '', $host);
-        if (in_array($host, $exclude_domains)) {
+        if (in_array($host, $trim_exclude_domains)) {
           continue;
         }
         // if (strpos($object_item->link, 'youtube.com') !== false) continue;
@@ -170,7 +171,6 @@ function proceedKeyword($keyword_data)
         // Crawl content từ link
         print_to_screen("Crawl link: " . $object_item->link);
         $content = crawlContentByUrl($object_item->link);
-        var_dump($content);die;
         if (isset($content['content']) & $content['content'] != '') {
           $source_content_data = [
             'keywords_id'   => $keyword_data['id'],
