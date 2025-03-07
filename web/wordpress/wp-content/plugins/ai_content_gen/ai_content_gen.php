@@ -6,7 +6,7 @@
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Version: 1.2.0
- * Requires PHP: 8.3
+ * Requires PHP: 8.1
  */
 
 
