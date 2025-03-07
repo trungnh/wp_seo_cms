@@ -1,5 +1,5 @@
 <?php
-require '/var/www/html/wp-load.php'; // Đường dẫn đến wp-load.php
+require './wp-load.php'; // Đường dẫn đến wp-load.php
 
 if (checkProcessKeywordsFlag()) {
 	global $wpdb;
