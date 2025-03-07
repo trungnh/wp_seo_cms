@@ -292,7 +292,7 @@ function callDeepseek($prompt)
     $data = json_encode([
         'model' => 'deepseek-chat',
         'messages' => [
-            ['role' => 'assistant', 'content' => $prompt]
+            ['role' => 'user', 'content' => $prompt]
         ]
     ]);
     
