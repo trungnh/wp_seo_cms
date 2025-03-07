@@ -63,7 +63,7 @@ if (isset($_POST['acg_keywords'])) {
 					<select name="category_id" id="category" required>
 		                <option value="">-- Chọn danh mục --</option>
 		                <?php foreach ($categories as $category) : ?>
-		                    <option value="<?php echo $category->term_id; ?>" <?php selected($selected_cat, $category->term_id); ?>>
+		                    <option value="<?php echo $category->term_id; ?>">
 		                        <?php echo $category->name; ?>
 		                    </option>
 		                <?php endforeach; ?>

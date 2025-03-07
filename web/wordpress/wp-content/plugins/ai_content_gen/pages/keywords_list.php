@@ -103,6 +103,8 @@ if (isset($_POST['process'])) {
 			        <tr>  
 			        	<td class="column-cb check-column"><input type="checkbox" id="check-all" /></th>  
 			            <th scope="col">Keyword</th>  
+			            <th scope="col">Category ID</th> 
+			            <th scope="col">User ID</th> 
 			            <th scope="col">Search</th>  
 			            <th scope="col">Status</th>  
 			        </tr>  
@@ -112,6 +114,8 @@ if (isset($_POST['process'])) {
 			            <tr>  
 			            	<th scope="row" class="column-cb check-column"><input type="checkbox" name="keywords_ids[]" value="<?php echo esc_attr($row['id']); ?>" class="row-checkbox"/></td>  
 			                <td><?php echo esc_html($row['keywords']); ?></td>  
+			                <td><?php echo esc_html($row['category_id']); ?></td>  
+			                <td><?php echo esc_html($row['user_id']); ?></td>  
 			                <td><?php echo esc_html($row['search']); ?></td>  
 			                <td><?php echo $row['status'] == 0 ? '<span style="color:red; font-weight:bold">&#10005;</span>' : '<span style="color:green; font-weight:bold">&#10003;</span>'; ?></td>  
 			            </tr>  

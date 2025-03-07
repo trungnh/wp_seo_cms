@@ -170,6 +170,7 @@ function proceedKeyword($keyword_data)
         // Crawl content từ link
         print_to_screen("Crawl link: " . $object_item->link);
         $content = crawlContentByUrl($object_item->link);
+        var_dump($content);die;
         if (isset($content['content']) & $content['content'] != '') {
           $source_content_data = [
             'keywords_id'   => $keyword_data['id'],
@@ -223,7 +224,9 @@ function proceedKeyword($keyword_data)
 
           try {
             $crawled_content_id = $wpdb->insert($source_content_table_name, $source_content_data); 
-          } catch (Exception $e) {}
+          } catch (Exception $e) {
+            acg_log("Lỗi save DB: " . $source_content_table_name . ": " . curl_error($ch));
+          }
         }
       }
     }
