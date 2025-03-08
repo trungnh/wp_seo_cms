@@ -125,8 +125,8 @@ function crawlSearchTopByKeywordsIds($ids)
 
 function proceedKeyword($keyword_data)
 {
-  // global $wpdb;
-  // $source_content_table_name = $wpdb->prefix . "crawled_source_content";
+  global $wpdb;
+  $source_content_table_name = $wpdb->prefix . "crawled_source_content";
 
   print_to_screen("Bat dau xu ly keyword: " . $keyword_data['keywords']);
   $response = crawlSearchTopbyKeyword($keyword_data['keywords']);
@@ -222,11 +222,11 @@ function proceedKeyword($keyword_data)
           $source_content_data ['tom_tat'] = $tom_tat;
           $noi_dung_rut_gon .= trim($tom_tat);
 
-          // try {
-          //   $crawled_content_id = $wpdb->insert($source_content_table_name, $source_content_data); 
-          // } catch (Exception $e) {
-          //   acg_log("Lỗi save DB: " . $source_content_table_name . ": " . curl_error($ch));
-          // }
+          try {
+            $crawled_content_id = $wpdb->insert($source_content_table_name, $source_content_data); 
+          } catch (Exception $e) {
+            acg_log("Lỗi save DB: " . $source_content_table_name . ": " . curl_error($ch));
+          }
         }
       }
     }
@@ -247,7 +247,7 @@ function generateArticle($keyword_data, $title, $dan_bai, $noi_dung_rut_gon)
 {
   global $wpdb;
   $keywords_table_name = $wpdb->prefix . 'search_keywords';
-  // $source_content_table_name = $wpdb->prefix . "crawled_source_content";
+  $source_content_table_name = $wpdb->prefix . "crawled_source_content";
 
   // Tạo bài viết
   print_to_screen("Viet bai");
@@ -259,10 +259,12 @@ function generateArticle($keyword_data, $title, $dan_bai, $noi_dung_rut_gon)
 
   $deepseek_prompt_title = $acg_options['deepseek_prompt_title'];
   $deepseek_prompt_title = str_replace('{{keyword}}', $keyword_data['keywords'], $deepseek_prompt_title);
+  $deepseek_prompt_title = str_replace('{{user_intent}}', $title, $deepseek_prompt_title);
   $deepseek_prompt_title = str_replace('{{title}}', $title, $deepseek_prompt_title);
 
   $deepseek_prompt_description = $acg_options['deepseek_prompt_description'];
   $deepseek_prompt_description = str_replace('{{keyword}}', $keyword_data['keywords'], $deepseek_prompt_description);
+  $deepseek_prompt_description = str_replace('{{user_intent}}', $title, $deepseek_prompt_description);
   $deepseek_prompt_description = str_replace('{{title}}', $title, $deepseek_prompt_description);
 
   $article_title = callDeepseek($deepseek_prompt_title);
@@ -279,22 +281,30 @@ function generateArticle($keyword_data, $title, $dan_bai, $noi_dung_rut_gon)
       'post_author'  => $keyword_data['user_id'],
       'post_category' => [$keyword_data['category_id']] // ID danh mục
   ]);
-  // if ($post_id) {
-  //   $wpdb->update($source_content_table_name, ['status' => 1], ['keywords_id' => $keyword_data['id']]);
-  // }
+  if ($post_id) {
+    $wpdb->update($source_content_table_name, ['status' => 1], ['keywords_id' => $keyword_data['id']]);
+  }
 }
 
-function callDeepseek($prompt) 
+function callDeepseek($prompt, $system_prompt = '') 
 {
     $acg_options = get_option('acg_settings_option');
     $api_url = 'https://api.deepseek.com/v1/chat/completions';
     
-    $data = json_encode([
+    $data = [
         'model' => 'deepseek-chat',
         'messages' => [
             ['role' => 'user', 'content' => $prompt]
-        ]
-    ]);
+        ];
+
+    if (!empty($system_prompt)) {
+      $data = [
+        'model' => 'deepseek-chat',
+        'messages' => [
+            ['role' => 'system', 'content' => $system_prompt]
+            ['role' => 'user', 'content' => $prompt]
+        ];
+    }
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $api_url);
@@ -304,7 +314,7 @@ function callDeepseek($prompt)
         'Content-Type: application/json',
         'Authorization: Bearer ' . $acg_options['deepseek_token']
     ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     
     $response = curl_exec($ch);
     

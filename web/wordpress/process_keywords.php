@@ -12,7 +12,7 @@ if (checkProcessKeywordsFlag()) {
 
 	$keywords_table_name = $wpdb->prefix . 'search_keywords';
 
-	$keySqlStr = "SELECT id, category_id, user_id, keywords FROM {$keywords_table_name} WHERE status = %d";
+	$keySqlStr = "SELECT id, category_id, user_id, keywords FROM {$keywords_table_name} WHERE status = %d LIMIT 1";
 	$keySql = $wpdb->prepare($keySqlStr, 0);
 	$rs = $wpdb->get_results($keySql, ARRAY_A);
 

@@ -170,6 +170,14 @@ class ACGSettings {
 		);
 
 		add_settings_field(
+			'deepseek_prompt_system', // id
+			'Deepseek System Prompt', // title
+			array( $this, 'deepseek_prompt_system_callback' ), // callback
+			'acg-settings-admin', // page
+			'acg_settings_setting_section' // section
+		);
+
+		add_settings_field(
 			'deepseek_prompt_title', // id
 			'Deepseek Prompt Tiêu đề', // title
 			array( $this, 'deepseek_prompt_title_callback' ), // callback
@@ -254,6 +262,10 @@ class ACGSettings {
 
 		if ( isset( $input['prompt_dan_bai'] ) ) {
 			$sanitary_values['prompt_dan_bai'] = wp_unslash( $input['prompt_dan_bai'] );
+		}
+
+		if ( isset( $input['deepseek_prompt_system'] ) ) {
+			$sanitary_values['deepseek_prompt_system'] = wp_unslash( $input['deepseek_prompt_system'] );
 		}
 
 		if ( isset( $input['deepseek_prompt_title'] ) ) {
@@ -377,6 +389,13 @@ class ACGSettings {
 		printf(
 			'<textarea class="regular-text" type="text" name="acg_settings_option[prompt_dan_bai]" id="prompt_dan_bai">%s</textarea>',
 			isset( $this->acg_settings_options['prompt_dan_bai'] ) ? esc_textarea( $this->acg_settings_options['prompt_dan_bai']) : ''
+		);
+	}
+
+	public function deepseek_prompt_system_callback() {
+		printf(
+			'<textarea class="regular-text" type="text" name="acg_settings_option[deepseek_prompt_system]" id="deepseek_prompt_system">%s</textarea>',
+			isset( $this->acg_settings_options['deepseek_prompt_system'] ) ? esc_textarea( $this->acg_settings_options['deepseek_prompt_system']) : ''
 		);
 	}
 
