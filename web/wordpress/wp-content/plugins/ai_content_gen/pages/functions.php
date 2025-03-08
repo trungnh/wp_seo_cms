@@ -295,17 +295,19 @@ function callDeepseek($prompt, $system_prompt = '')
         'model' => 'deepseek-chat',
         'messages' => [
             ['role' => 'user', 'content' => $prompt]
+          ]
         ];
 
     if (!empty($system_prompt)) {
       $data = [
         'model' => 'deepseek-chat',
         'messages' => [
-            ['role' => 'system', 'content' => $system_prompt]
+            ['role' => 'system', 'content' => $system_prompt],
             ['role' => 'user', 'content' => $prompt]
+          ]
         ];
     }
-    
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $api_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
