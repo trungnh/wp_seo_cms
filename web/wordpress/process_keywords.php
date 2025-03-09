@@ -10,8 +10,7 @@ lockProcessKeywords();
 if (checkProcessKeywordsFlag()) {
 	global $wpdb;
 
-	$keywords_table_name = $wpdb->prefix . 'search_keywords';
-	$total_records = $wpdb->get_var("SELECT COUNT(*) FROM {$keywords_table_name} WHERE status = 0");  
+	$keywords_table_name = $wpdb->prefix . 'search_keywords';  
 
 	$keySqlStr = "SELECT id, category_id, user_id, keywords FROM {$keywords_table_name} WHERE status = %d LIMIT 1";
 	$keySql = $wpdb->prepare($keySqlStr, 0);
@@ -22,7 +21,8 @@ if (checkProcessKeywordsFlag()) {
 		$wpdb->update($keywords_table_name, ['status' => 1], ['id' => $item['id']]);
 	}
 
-	if ($total_records = 1) {
+	$total_records = $wpdb->get_var("SELECT COUNT(*) FROM {$keywords_table_name} WHERE status = 0");
+	if ($total_records = 0) {
 		deleteProcessKeywordsFlag();
 	} 
 }
