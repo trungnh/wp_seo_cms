@@ -22,7 +22,7 @@ if (checkProcessKeywordsFlag()) {
 	}
 
 	$total_records = $wpdb->get_var("SELECT COUNT(*) FROM {$keywords_table_name} WHERE status = 0");
-	if ($total_records = 0) {
+	if ($total_records == 0) {
 		deleteProcessKeywordsFlag();
 	} 
 }
