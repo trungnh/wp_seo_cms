@@ -1,17 +1,17 @@
 <?php
 require './wp-load.php'; // Đường dẫn đến wp-load.php
 
-// if (checkLockProcessKeywords()) {
-// 	exit;
-// }
+if (checkLockProcessKeywords()) {
+	exit;
+}
 
-// lockProcessKeywords();
+lockProcessKeywords();
 
 if (checkProcessKeywordsFlag()) {
 	global $wpdb;
 
 	$keywords_table_name = $wpdb->prefix . 'search_keywords';
-	$total_records = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name} WHERE status = 0");  
+	$total_records = $wpdb->get_var("SELECT COUNT(*) FROM {$keywords_table_name} WHERE status = 0");  
 
 	$keySqlStr = "SELECT id, category_id, user_id, keywords FROM {$keywords_table_name} WHERE status = %d LIMIT 1";
 	$keySql = $wpdb->prepare($keySqlStr, 0);
@@ -27,4 +27,4 @@ if (checkProcessKeywordsFlag()) {
 	} 
 }
 
-// unlockProcessKeywords();
+unlockProcessKeywords();
