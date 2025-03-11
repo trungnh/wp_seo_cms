@@ -237,6 +237,8 @@ function proceedKeyword($keyword_data)
     $prompt_dan_bai = str_replace("{{keyword_chinh}}", $keyword_chinh_text, $prompt_dan_bai);
     $prompt_dan_bai = str_replace("{{user_intent}}", $user_intent_text, $prompt_dan_bai);
     $dan_bai = callGemini($prompt_dan_bai);
+    $source_content_data ['dan_bai'] = $dan_bai;
+    
     if ($dan_bai != '') {
       generateArticle($keyword_data, $title, $description, $dan_bai, $noi_dung_rut_gon);
     }
