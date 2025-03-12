@@ -127,6 +127,10 @@ function proceedKeyword($keyword_data)
 {
   global $wpdb;
   $source_content_table_name = $wpdb->prefix . "crawled_source_content";
+  $dan_bai_table_name = $wpdb->prefix . "dan_bai";
+
+  $acg_options = get_option('acg_settings_option');
+  $crawl_search_number = $acg_options['number_of_result'] ?? 10;
 
   print_to_screen("Bat dau xu ly keyword: " . $keyword_data['keywords']);
   $response = crawlSearchTopbyKeyword($keyword_data['keywords']);
@@ -144,6 +148,7 @@ function proceedKeyword($keyword_data)
     $trim_exclude_domains = array_map('trim', $exclude_domains);
 
     $organic = $response->organic;
+    $rs_count = 1;
     foreach ($response->organic as $object_item) {
       if ($object_item->link != '') {
         // Loại trừ domain
@@ -229,6 +234,10 @@ function proceedKeyword($keyword_data)
           }
         }
       }
+
+      if ($rs_count++ >= $crawl_search_number) {
+        break;
+      }
     }
 
     print_to_screen("Lay dan bai");
@@ -237,9 +246,17 @@ function proceedKeyword($keyword_data)
     $prompt_dan_bai = str_replace("{{keyword_chinh}}", $keyword_chinh_text, $prompt_dan_bai);
     $prompt_dan_bai = str_replace("{{user_intent}}", $user_intent_text, $prompt_dan_bai);
     $dan_bai = callGemini($prompt_dan_bai);
-    $source_content_data ['dan_bai'] = $dan_bai;
     
     if ($dan_bai != '') {
+      try {
+            $dan_bai_data = [
+              'keywords_id'   => $keyword_data['id'],
+              'dan_bai'       => $dan_bai
+            ];
+            $wpdb->insert($dan_bai_table_name, $dan_bai_data); 
+          } catch (Exception $e) {
+            acg_log("Lỗi save DB: " . $source_content_table_name . ": " . curl_error($ch));
+          }
       generateArticle($keyword_data, $title, $description, $dan_bai, $noi_dung_rut_gon);
     }
   }
@@ -421,11 +438,10 @@ function crawlSearchTopbyKeyword($keyword)
   $acg_options = get_option('acg_settings_option');
   $crawl_search_Endpoint = $acg_options['endpoint_crawl_search'] ?? 'https://google.serper.dev/search';
   $crawl_search_Token = $acg_options['token_crawl_search'] ?? '';
-  $crawl_search_number = $acg_options['number_of_result'] ?? 10;
 
   $params = [
         'q' => $keyword, 
-        'num' => $crawl_search_number
+        'num' => 50
       ];
   $params['hl'] = $acg_options['lang_crawl_search'] ?? 'vi';
   $params['gl'] = $acg_options['location_crawl_search'] ?? 'vn';
