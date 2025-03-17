@@ -1,4 +1,19 @@
 <?php
+// Xử lý bulk_action
+if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {  
+    $action = sanitize_text_field($_POST['bulk_action']);  
+    $selected_ids = $_POST['keywords_ids'];  
+
+    switch ($action) {  
+        case 'delete':  
+            // Thực hiện xóa bản ghi  
+        	deleteKeywords($selected_ids);
+            break;  
+        case 'approve':  
+        	approveKeywords($selected_ids);
+            break;  
+    }  
+}  
 
 global $wpdb;
 
@@ -31,22 +46,6 @@ if ($status_filter) {
 }  
 $sql .= " LIMIT %d OFFSET %d";  
 $data = $wpdb->get_results($wpdb->prepare($sql, $records_per_page, $offset), ARRAY_A);
-
-// Xử lý bulk_action
-if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {  
-    $action = sanitize_text_field($_POST['bulk_action']);  
-    $selected_ids = $_POST['keywords_ids'];  
-
-    switch ($action) {  
-        case 'delete':  
-            // Thực hiện xóa bản ghi  
-        	deleteKeywords($selected_ids);
-            break;  
-        case 'approve':  
-        	approveKeywords($selected_ids);
-            break;  
-    }  
-}  
 
 if (isset($_POST['process'])) {
 	createProcessKeywordsFlag();
@@ -86,8 +85,9 @@ if (isset($_POST['process'])) {
 		    <label for="status">Status:</label>  
 		    <select name="status" id="status">  
 		        <option value="">Tất cả</option>  
-		        <option value="1" <?php selected($_GET['status'], 'active'); ?>>Crawled</option>  
-		        <option value="0" <?php selected($_GET['status'], 'inactive'); ?>>Not Crawl</option>  
+		        <option value="1" <?php selected($_GET['status'], 1); ?>>Crawled</option>  
+		        <option value="0" <?php selected($_GET['status'], 0); ?>>Not Crawl</option>  
+		        <option value="2" <?php selected($_GET['status'], 2); ?>>Related Keywords</option>  
 		    </select>  
 		    <input type="submit" value="Filter" class="button" />  
 		</form>  
@@ -96,7 +96,7 @@ if (isset($_POST['process'])) {
 			<label for="bulk_action">Hành động:</label>
 		    <select name="bulk_action">  
 		        <option value="">Chọn hành động</option>  
-		        <option value="approce">Duyệt từ khoá để crawl</option>  
+		        <option value="approve">Duyệt từ khoá để crawl</option>  
 		        <option value="delete">Xoá</option>  
 		    </select>  
 		    <input type="submit" value="Thực hiện" class="button" />  
@@ -119,7 +119,20 @@ if (isset($_POST['process'])) {
 			                <td><?php echo esc_html($row['category_id']); ?></td>  
 			                <td><?php echo esc_html($row['user_id']); ?></td>  
 			                <td><?php echo esc_html($row['search']); ?></td>  
-			                <td><?php echo $row['status'] == 0 ? '<span style="color:red; font-weight:bold">&#10005;</span>' : '<span style="color:green; font-weight:bold">&#10003;</span>'; ?></td>  
+			                <td>
+		                		<?php 
+		                			if ($row['status'] == 0) {
+		                				echo '<span style="color:red; font-weight:bold">&#10005;</span>';
+		                			}
+		                			else if ($row['status'] == 1) {
+	                					echo '<span style="color:green; font-weight:bold">&#10003;</span>';
+		                			}
+		                			else {
+                						echo '<span style="font-weight:bold">Từ khoá liên quan (Cần duyệt để crawl)</span>';
+		                			}
+
+		                		?>			                		
+			                </td>  
 			            </tr>  
 			        <?php endforeach; ?>  
 			    </tbody>  

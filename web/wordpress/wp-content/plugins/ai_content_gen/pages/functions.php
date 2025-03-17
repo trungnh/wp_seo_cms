@@ -128,10 +128,20 @@ function approveKeywords ($ids)
   global $wpdb;
 
   $keywords_table_name = $wpdb->prefix . 'search_keywords';
-  $keywords_ids = implode(',', $ids);
-  foreach ($keywords_ids as $id) {
+  foreach ($ids as $id) {
+    $keySqlStr = "SELECT id, status FROM {$keywords_table_name} WHERE id = %d";
+    $keySql = $wpdb->prepare($keySqlStr, $ids);
+    $rs = $wpdb->get_results($keySql, ARRAY_A);
+    $updateFlag = false;
+    foreach ($rs as $keyW) {
+      if ($keyW['status'] == 2) {
+        $updateFlag = true; 
+      }
+    }
     // update status keyword
-    $wpdb->update($keywords_table_name, ['status' => 0], ['id' => $id]);
+    if ($updateFlag) {
+      $wpdb->update($keywords_table_name, ['status' => 0], ['id' => $id]);
+    }
   }
 }
 
@@ -140,10 +150,9 @@ function deleteKeywords ($ids)
   global $wpdb;
 
   $keywords_table_name = $wpdb->prefix . 'search_keywords';
-  $keywords_ids = implode(',', $ids);
-  foreach ($keywords_ids as $id) {
+  foreach ($ids as $id) {
     // delete keyword
-    $wpdb->update($keywords_table_name, ['id' => $id]);
+    $wpdb->delete($keywords_table_name, ['id' => $id]);
   }
 }
 
