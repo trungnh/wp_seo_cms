@@ -40,8 +40,10 @@ if (isset($_POST['bulk_action']) && !empty($_POST['keywords_ids'])) {
     switch ($action) {  
         case 'delete':  
             // Thực hiện xóa bản ghi  
+        	deleteKeywords($selected_ids);
             break;  
-        case 'crawl':  
+        case 'approve':  
+        	approveKeywords($selected_ids);
             break;  
     }  
 }  
@@ -94,7 +96,7 @@ if (isset($_POST['process'])) {
 			<label for="bulk_action">Hành động:</label>
 		    <select name="bulk_action">  
 		        <option value="">Chọn hành động</option>  
-		        <!-- <option value="crawl">Crawl</option>   -->
+		        <option value="approce">Duyệt từ khoá để crawl</option>  
 		        <option value="delete">Xoá</option>  
 		    </select>  
 		    <input type="submit" value="Thực hiện" class="button" />  

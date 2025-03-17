@@ -123,9 +123,34 @@ function crawlSearchTopByKeywordsIds($ids)
     }
 }
 
+function approveKeywords ($ids) 
+{
+  global $wpdb;
+
+  $keywords_table_name = $wpdb->prefix . 'search_keywords';
+  $keywords_ids = implode(',', $ids);
+  foreach ($keywords_ids as $id) {
+    // update status keyword
+    $wpdb->update($keywords_table_name, ['status' => 0], ['id' => $id]);
+  }
+}
+
+function deleteKeywords ($ids) 
+{
+  global $wpdb;
+
+  $keywords_table_name = $wpdb->prefix . 'search_keywords';
+  $keywords_ids = implode(',', $ids);
+  foreach ($keywords_ids as $id) {
+    // delete keyword
+    $wpdb->update($keywords_table_name, ['id' => $id]);
+  }
+}
+
 function proceedKeyword($keyword_data)
 {
   global $wpdb;
+  $keywords_table_name = $wpdb->prefix . "search_keywords";
   $source_content_table_name = $wpdb->prefix . "crawled_source_content";
   $dan_bai_table_name = $wpdb->prefix . "dan_bai";
 
@@ -149,6 +174,26 @@ function proceedKeyword($keyword_data)
 
     $organic = $response->organic;
     $rs_count = 1;
+
+    // Save relatedSearches
+
+    foreach ($response->relatedSearches as $relatedSearches) {
+      if (trim($relatedSearches->query) == '') continue;
+
+      try {
+        $related_keyword_data = [
+          'category_id' => $keyword_data['category_id'],
+          'user_id'     => $keyword_data['user_id'],
+          'keywords'    => $relatedSearches->query,
+          'search'      => 0,
+          'status'      => 2
+        ];
+
+        $wpdb->insert($keywords_table_name, $related_keyword_data);
+
+      } catch(Exception $e) {}
+    }
+
     foreach ($response->organic as $object_item) {
       if ($object_item->link != '') {
         // Loại trừ domain
@@ -159,19 +204,6 @@ function proceedKeyword($keyword_data)
         if (in_array($host, $trim_exclude_domains)) {
           continue;
         }
-        // if (strpos($object_item->link, 'youtube.com') !== false) continue;
-        // if (strpos($object_item->link, 'facebook.com') !== false) continue;
-        // if (strpos($object_item->link, 'tiktok.com') !== false) continue;
-        // if (strpos($object_item->link, 'fbsbx.com') !== false) continue;
-        // if (strpos($object_item->link, 'wikipedia.org') !== false) continue;
-        // if (strpos($object_item->link, 'imdb.com') !== false) continue;
-        // if (strpos($object_item->link, 'shopee.vn') !== false) continue;
-        // if (strpos($object_item->link, 'lazada.vn') !== false) continue;
-        // if (strpos($object_item->link, 'tiki.vn') !== false) continue;
-        // if (strpos($object_item->link, 'sendo.vn') !== false) continue;
-        // if (strpos($object_item->link, 'play.google.com') !== false) continue;
-        // if (strpos($object_item->link, 'apps.apple.com') !== false) continue;
-        // if (strpos($object_item->link, 'instagram.com') !== false) continue;
 
         // Crawl content từ link
         print_to_screen("Crawl link: " . $object_item->link);
