@@ -292,7 +292,8 @@ function proceedKeyword($keyword_data)
       try {
             $dan_bai_data = [
               'keywords_id'   => $keyword_data['id'],
-              'dan_bai'       => $dan_bai
+              'dan_bai'       => $dan_bai,
+              'keyword'       => $keyword_chinh_text
             ];
             $wpdb->insert($dan_bai_table_name, $dan_bai_data); 
           } catch (Exception $e) {
